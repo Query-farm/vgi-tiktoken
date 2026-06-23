@@ -22,9 +22,8 @@ log = "0.4"
 env_logger = "0.11"
 # tiktoken-rs BUNDLES the OpenAI BPE encodings (cl100k_base, o200k_base,
 # p50k_base, r50k_base, …) at compile time — no network download at runtime.
-# PINNED to =0.11.0: it is the newest release whose MSRV (1.73) fits our
-# workspace `rust-version = 1.86`. tiktoken-rs 0.12 uses `let`-chains in `&&`
-# position (stable only in Rust 1.88), which bumps the MSRV past ours.
-tiktoken-rs = "=0.11.0"
+# PINNED to =0.12.0: it uses `let`-chains in `&&` position (stable only in
+# Rust 1.88), which is fine now that the workspace MSRV is `rust-version = 1.90`.
+tiktoken-rs = "=0.12.0"
 # Lazily build & cache each encoder for the process lifetime.
 once_cell = "1"
