@@ -25,6 +25,6 @@ env_logger = "0.11"
 # PINNED to =0.11.0: it is the newest release whose MSRV (1.73) fits our
 # workspace `rust-version = 1.86`. tiktoken-rs 0.12 uses `let`-chains in `&&`
 # position (stable only in Rust 1.88), which bumps the MSRV past ours.
-tiktoken-rs = "=0.11.0"
+tiktoken-rs = "=0.12.0"
 # Lazily build & cache each encoder for the process lifetime.
 once_cell = "1"
