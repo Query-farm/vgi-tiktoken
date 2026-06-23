@@ -1,0 +1,82 @@
+# name: test/sql/chunk.test
+# group: [vgi_tiktoken]
+#
+# chunk_by_tokens(text, max_tokens) / (text, max_tokens, overlap) -> VARCHAR[].
+# Token-aware chunking is deterministic, so chunk counts and reconstruction are
+# asserted exactly. Each chunk is <= max tokens; no-overlap chunks concatenate
+# back to the input.
+
+require-env VGI_TIKTOKEN_WORKER
+
+statement ok
+LOAD vgi;
+
+statement ok
+ATTACH 'tiktoken' AS tiktoken (TYPE vgi, LOCATION '${VGI_TIKTOKEN_WORKER}');
+
+statement ok
+SET search_path = 'tiktoken.main';
+
+# A 20-token document under cl100k_base.
+query I
+SELECT count_tokens('The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.');
+----
+20
+
+# max=10, no overlap -> 2 chunks (20 tokens / 10).
+query I
+SELECT len(chunk_by_tokens('The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.', 10));
+----
+2
+
+# max=8, overlap=2 -> 3 chunks (window advances by 6).
+query I
+SELECT len(chunk_by_tokens('The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.', 8, 2));
+----
+3
+
+# Every chunk is <= max_tokens tokens (no-overlap case).
+query I
+SELECT max(count_tokens(c)) <= 10
+FROM UNNEST(chunk_by_tokens('The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.', 10)) AS u(c);
+----
+true
+
+# No-overlap chunks concatenate back to the original text.
+query T
+SELECT string_agg(c, '' ORDER BY i)
+FROM (
+  SELECT generate_subscripts(parts, 1) AS i, UNNEST(parts) AS c
+  FROM (SELECT chunk_by_tokens('The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.', 10) AS parts)
+);
+----
+The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.
+
+# Empty text -> empty list; NULL -> NULL.
+query I
+SELECT len(chunk_by_tokens('', 10));
+----
+0
+
+query T
+SELECT chunk_by_tokens(NULL, 10);
+----
+NULL
+
+# Over a small VALUES table: each row chunks independently.
+query TI
+SELECT s, len(chunk_by_tokens(s, 4)) AS nchunks
+FROM (VALUES
+  ('hello world'),
+  ('The quick brown fox jumps over the lazy dog.')
+) AS t(s)
+ORDER BY nchunks;
+----
+hello world	1
+The quick brown fox jumps over the lazy dog.	3
+
+statement ok
+USE memory;
+
+statement ok
+DETACH tiktoken;

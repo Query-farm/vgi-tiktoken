@@ -1,0 +1,102 @@
+# name: test/sql/count.test
+# group: [vgi_tiktoken]
+#
+# Scalar token counting: count_tokens(text) and count_tokens(text, model), plus
+# encoding_for_model and tiktoken_version. tiktoken is deterministic, so counts
+# are asserted exactly. Unknown model -> NULL; NULL in -> NULL out; empty -> 0.
+
+require-env VGI_TIKTOKEN_WORKER
+
+statement ok
+LOAD vgi;
+
+statement ok
+ATTACH 'tiktoken' AS tiktoken (TYPE vgi, LOCATION '${VGI_TIKTOKEN_WORKER}');
+
+statement ok
+SET search_path = 'tiktoken.main';
+
+# Known cl100k_base count: "hello world" = 2 tokens.
+query I
+SELECT count_tokens('hello world');
+----
+2
+
+# Same text under gpt-4o (o200k_base) is also 2.
+query I
+SELECT count_tokens('hello world', 'gpt-4o');
+----
+2
+
+# gpt-4 / gpt-3.5-turbo use cl100k_base.
+query I
+SELECT count_tokens('hello world', 'gpt-4');
+----
+2
+
+query I
+SELECT count_tokens('hello world', 'gpt-3.5-turbo');
+----
+2
+
+# Empty text -> 0.
+query I
+SELECT count_tokens('');
+----
+0
+
+# NULL text -> NULL.
+query I
+SELECT count_tokens(NULL);
+----
+NULL
+
+# Unknown model -> NULL (treated as missing metadata, not an error).
+query I
+SELECT count_tokens('hello world', 'no-such-model');
+----
+NULL
+
+# encoding_for_model maps model names to encoding names.
+query T
+SELECT encoding_for_model('gpt-4o');
+----
+o200k_base
+
+query T
+SELECT encoding_for_model('gpt-4');
+----
+cl100k_base
+
+query T
+SELECT encoding_for_model('text-davinci-003');
+----
+p50k_base
+
+# Unknown model -> NULL.
+query T
+SELECT encoding_for_model('not-a-model');
+----
+NULL
+
+# Version is a non-empty string.
+query I
+SELECT length(tiktoken_version()) > 0;
+----
+true
+
+# Over a small VALUES table: counts are stable and ordered by length.
+query TI
+SELECT s, count_tokens(s) AS n
+FROM (VALUES ('hello world'), ('a'), ('')) AS t(s)
+ORDER BY n;
+----
+(empty)	0
+a	1
+hello world	2
+
+statement ok
+USE memory;
+
+statement ok
+DETACH tiktoken;

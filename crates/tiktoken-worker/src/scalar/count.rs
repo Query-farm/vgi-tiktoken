@@ -1,0 +1,188 @@
+//! `count_tokens(text) -> INTEGER` (default cl100k_base) and
+//! `count_tokens(text, model) -> INTEGER` (encoding chosen by model name).
+//!
+//! Two arity overloads share the name `count_tokens`; VGI's overload resolver
+//! picks by argument count. Empty text → 0. NULL text → NULL.
+//!
+//! ## Unknown-model policy
+//!
+//! An **unknown model** is treated as missing metadata → the row's result is
+//! **NULL** (mirrors `encoding_for_model`, and how a NULL flows to NULL). This
+//! tolerates dirty/unknown model strings in data without aborting a scan. The
+//! caller can `WHERE encoding_for_model(model) IS NOT NULL` to find them.
+
+use std::sync::Arc;
+
+use arrow_array::builder::Int32Builder;
+use arrow_array::{ArrayRef, RecordBatch};
+use arrow_schema::DataType;
+use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi_rpc::{Result, RpcError};
+
+use crate::arrow_io::text_str;
+use crate::tiktoken::{self, Encoding};
+
+/// `count_tokens(text)` — token count under the default encoding (cl100k_base).
+pub struct CountTokens;
+
+impl ScalarFunction for CountTokens {
+    fn name(&self) -> &str {
+        "count_tokens"
+    }
+
+    fn metadata(&self) -> FunctionMetadata {
+        FunctionMetadata {
+            description: "Count LLM tokens in text under the default encoding (cl100k_base, the \
+                          GPT-4/3.5 tokenizer). Empty text -> 0"
+                .into(),
+            return_type: Some(DataType::Int32),
+            ..Default::default()
+        }
+    }
+
+    fn argument_specs(&self) -> Vec<ArgSpec> {
+        vec![ArgSpec::any_column("text", 0, "Text to tokenize (VARCHAR)")]
+    }
+
+    fn on_bind(&self, _params: &BindParams) -> Result<BindResponse> {
+        Ok(BindResponse::result(DataType::Int32))
+    }
+
+    fn process(&self, params: &ProcessParams, batch: &RecordBatch) -> Result<RecordBatch> {
+        let col = batch.column(0);
+        let rows = batch.num_rows();
+        let mut out = Int32Builder::new();
+        for i in 0..rows {
+            match text_str(col, i)? {
+                Some(text) => {
+                    out.append_value(tiktoken::count(text, Encoding::default_encoding()) as i32)
+                }
+                None => out.append_null(),
+            }
+        }
+        let arr: ArrayRef = Arc::new(out.finish());
+        RecordBatch::try_new(params.output_schema.clone(), vec![arr])
+            .map_err(|e| RpcError::runtime_error(e.to_string()))
+    }
+}
+
+/// `count_tokens(text, model)` — token count under the encoding for `model`.
+/// Unknown model → NULL.
+pub struct CountTokensModel;
+
+impl ScalarFunction for CountTokensModel {
+    fn name(&self) -> &str {
+        "count_tokens"
+    }
+
+    fn metadata(&self) -> FunctionMetadata {
+        FunctionMetadata {
+            description: "Count LLM tokens in text using the encoding for the given model name \
+                          (e.g. 'gpt-4o'). Exact for OpenAI BPE families, a close proxy for \
+                          others. Unknown model -> NULL; empty text -> 0"
+                .into(),
+            return_type: Some(DataType::Int32),
+            ..Default::default()
+        }
+    }
+
+    fn argument_specs(&self) -> Vec<ArgSpec> {
+        vec![
+            ArgSpec::any_column("text", 0, "Text to tokenize (VARCHAR)"),
+            ArgSpec::any_column(
+                "model",
+                1,
+                "Model or encoding name, e.g. 'gpt-4o' (VARCHAR)",
+            ),
+        ]
+    }
+
+    fn on_bind(&self, _params: &BindParams) -> Result<BindResponse> {
+        Ok(BindResponse::result(DataType::Int32))
+    }
+
+    fn process(&self, params: &ProcessParams, batch: &RecordBatch) -> Result<RecordBatch> {
+        let text = batch.column(0);
+        let model = batch.column(1);
+        let rows = batch.num_rows();
+        let mut out = Int32Builder::new();
+        for i in 0..rows {
+            match (text_str(text, i)?, text_str(model, i)?) {
+                (Some(t), Some(m)) => match tiktoken::resolve(m) {
+                    Some(enc) => out.append_value(tiktoken::count(t, enc) as i32),
+                    None => out.append_null(), // unknown model → NULL
+                },
+                _ => out.append_null(),
+            }
+        }
+        let arr: ArrayRef = Arc::new(out.finish());
+        RecordBatch::try_new(params.output_schema.clone(), vec![arr])
+            .map_err(|e| RpcError::runtime_error(e.to_string()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::arrow_io::test_support::{bound_type, process_params, run_scalar_text};
+    use arrow_array::cast::AsArray;
+    use arrow_array::types::Int32Type;
+    use arrow_array::{Array, RecordBatch, StringArray};
+    use arrow_schema::{Field, Schema};
+    use vgi::arguments::Arguments;
+
+    #[test]
+    fn count_default_hello_world_is_two() {
+        assert_eq!(bound_type(&CountTokens), DataType::Int32);
+        let out = run_scalar_text(
+            &CountTokens,
+            &[Some("hello world"), Some(""), None],
+            Arguments::default(),
+        )
+        .unwrap();
+        let v = out.as_primitive::<Int32Type>();
+        assert_eq!(v.value(0), 2, "cl100k_base 'hello world' = 2 tokens");
+        assert_eq!(v.value(1), 0, "empty -> 0");
+        assert!(out.is_null(2), "NULL -> NULL");
+    }
+
+    fn run_count_model(texts: &[Option<&str>], models: &[Option<&str>]) -> ArrayRef {
+        let t: ArrayRef = Arc::new(StringArray::from(texts.to_vec()));
+        let m: ArrayRef = Arc::new(StringArray::from(models.to_vec()));
+        let schema = Arc::new(Schema::new(vec![
+            Field::new("text", DataType::Utf8, true),
+            Field::new("model", DataType::Utf8, true),
+        ]));
+        let batch = RecordBatch::try_new(schema.clone(), vec![t, m]).unwrap();
+        let bind = BindParams {
+            input_schema: Some(schema),
+            ..Default::default()
+        };
+        let bound = CountTokensModel.on_bind(&bind).unwrap();
+        let params = process_params(bound.output_schema, Arguments::default());
+        CountTokensModel
+            .process(&params, &batch)
+            .unwrap()
+            .column(0)
+            .clone()
+    }
+
+    #[test]
+    fn count_with_model() {
+        let out = run_count_model(
+            &[Some("hello world"), Some("hello world"), Some("x"), None],
+            &[
+                Some("gpt-4o"),
+                Some("gpt-4"),
+                Some("bogus-model"),
+                Some("gpt-4"),
+            ],
+        );
+        let v = out.as_primitive::<Int32Type>();
+        // Both encodings tokenize "hello world" as 2 tokens.
+        assert_eq!(v.value(0), 2, "gpt-4o (o200k) 'hello world' = 2");
+        assert_eq!(v.value(1), 2, "gpt-4 (cl100k) 'hello world' = 2");
+        assert!(out.is_null(2), "unknown model -> NULL");
+        assert!(out.is_null(3), "NULL text -> NULL");
+    }
+}

@@ -1,0 +1,89 @@
+# name: test/sql/tokenize.test
+# group: [vgi_tiktoken]
+#
+# tokenize(text) / tokenize(text, model) -> INTEGER[]; truncate_to_tokens. token
+# ids are deterministic, so the exact sequences are asserted. NULL -> NULL,
+# empty -> [].
+
+require-env VGI_TIKTOKEN_WORKER
+
+statement ok
+LOAD vgi;
+
+statement ok
+ATTACH 'tiktoken' AS tiktoken (TYPE vgi, LOCATION '${VGI_TIKTOKEN_WORKER}');
+
+statement ok
+SET search_path = 'tiktoken.main';
+
+# Known cl100k_base token ids for "hello world".
+query T
+SELECT tokenize('hello world');
+----
+[15339, 1917]
+
+# Known cl100k_base token ids for "tiktoken is great!" (6 tokens).
+query T
+SELECT tokenize('tiktoken is great!');
+----
+[83, 1609, 5963, 374, 2294, 0]
+
+# Length of the token list equals count_tokens.
+query I
+SELECT len(tokenize('tiktoken is great!')) = count_tokens('tiktoken is great!');
+----
+true
+
+# Under gpt-4o (o200k_base) "hello world" has different ids.
+query T
+SELECT tokenize('hello world', 'gpt-4o');
+----
+[24912, 2375]
+
+# Empty text -> empty list.
+query I
+SELECT len(tokenize(''));
+----
+0
+
+# NULL text -> NULL.
+query T
+SELECT tokenize(NULL);
+----
+NULL
+
+# Unknown model -> NULL list.
+query T
+SELECT tokenize('hello world', 'no-such-model');
+----
+NULL
+
+# truncate_to_tokens keeps the first n tokens and decodes them.
+query T
+SELECT truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 3);
+----
+The quick brown
+
+# Re-counting the truncated prefix yields exactly n tokens.
+query I
+SELECT count_tokens(truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 4));
+----
+4
+
+# n >= total round-trips the whole string.
+query T
+SELECT truncate_to_tokens('hello world', 1000);
+----
+hello world
+
+# n = 0 -> empty string.
+query T
+SELECT truncate_to_tokens('hello world', 0);
+----
+(empty)
+
+statement ok
+USE memory;
+
+statement ok
+DETACH tiktoken;
