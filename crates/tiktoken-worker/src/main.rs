@@ -59,7 +59,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                     .to_string(),
             ),
             (
-                "vgi.description_llm".to_string(),
+                "vgi.doc_llm".to_string(),
                 "Count exact LLM tokens for text, tokenize text to BPE token ids, map a model \
                  name to its tiktoken encoding, truncate text to a token budget, and split text \
                  into token-bounded (optionally overlapping) chunks for RAG. Encodings are \
@@ -70,7 +70,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                     .to_string(),
             ),
             (
-                "vgi.description_md".to_string(),
+                "vgi.doc_md".to_string(),
                 "# tiktoken\n\nExact LLM token counting and token-aware text chunking over Apache \
                  Arrow, powered by [`tiktoken-rs`](https://crates.io/crates/tiktoken-rs) (BPE \
                  encodings bundled — no network).\n\nScalars: `count_tokens`, `tokenize`, \
@@ -119,15 +119,27 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                         .to_string(),
                 ),
                 (
-                    "vgi.description_llm".to_string(),
-                    "Token-aware text functions: count tokens, tokenize to BPE ids, truncate to a \
-                     token budget, chunk into token-bounded windows, and map a model name to its \
-                     tiktoken encoding."
+                    "vgi.doc_llm".to_string(),
+                    "Token-aware text functions for the `tiktoken.main` schema: `count_tokens` \
+                     (exact token count), `tokenize` (BPE token ids), `truncate_to_tokens` (clip \
+                     text to a token budget), `chunk_by_tokens` (token-bounded, optionally \
+                     overlapping RAG windows), `encoding_for_model` (model name → encoding name), \
+                     and `tiktoken_version`. Each text function has a default-encoding overload \
+                     (cl100k_base) and a model-arity overload that resolves a model or encoding \
+                     name. Unknown models return NULL; NULL text flows through to NULL."
                         .to_string(),
                 ),
                 (
-                    "vgi.description_md".to_string(),
-                    "LLM token counting and token-aware text chunking functions over Apache Arrow."
+                    "vgi.doc_md".to_string(),
+                    "## tiktoken.main\n\nLLM token counting and token-aware text chunking over \
+                     Apache Arrow.\n\n### Functions\n\n- **count_tokens(text[, model])** — exact \
+                     token count.\n- **tokenize(text[, model])** — BPE token ids as `INTEGER[]`.\n\
+                     - **truncate_to_tokens(text, n[, model])** — first `n` tokens, decoded.\n- \
+                     **chunk_by_tokens(text, max[, overlap])** — token-bounded windows as \
+                     `VARCHAR[]` for RAG.\n- **encoding_for_model(model)** — model name → \
+                     encoding name.\n- **tiktoken_version()** — worker version.\n\n### Notes\n\n\
+                     The default encoding is `cl100k_base`; pass a model name (e.g. `gpt-4o`) to \
+                     select another. Encodings are bundled — no network access."
                         .to_string(),
                 ),
                 // VGI506 representative example queries for the schema.
