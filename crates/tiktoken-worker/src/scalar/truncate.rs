@@ -37,6 +37,17 @@ impl ScalarFunction for TruncateToTokens {
                 description: "Keep only the first 5 cl100k_base tokens of the text, decoded back to a string.".into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Truncate To Tokens (Default Encoding)",
+                "Keep only the first n tokens of text under the default encoding (cl100k_base) \
+                 and decode them back to a VARCHAR. n <= 0 -> ''; NULL text or NULL n -> NULL. \
+                 Use to clip text to a token budget for a prompt or context window.",
+                "Truncate text to its first n cl100k_base tokens, decoded back to text. \
+                 `truncate_to_tokens(text, 5)`.",
+                "truncate, truncate to tokens, clip tokens, token budget, limit tokens, first n \
+                 tokens, context window, cl100k_base",
+                "scalar/truncate.rs",
+            ),
             ..Default::default()
         }
     }
@@ -93,6 +104,17 @@ impl ScalarFunction for TruncateToTokensModel {
                 description: "Truncate text to a token budget using a specific model's encoding (gpt-4o uses o200k_base).".into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Truncate To Tokens For Model",
+                "Keep only the first n tokens of text using the encoding for the given model name \
+                 (e.g. 'gpt-4o') and decode them back to a VARCHAR. Unknown model -> NULL; n <= 0 \
+                 -> ''. Use to clip text to a specific model's token budget.",
+                "Truncate text to its first n tokens using a model's encoding, decoded back to \
+                 text. `truncate_to_tokens(text, 5, 'gpt-4o')`.",
+                "truncate, truncate to tokens for model, clip tokens, token budget, gpt-4o, limit \
+                 tokens, context window, o200k_base",
+                "scalar/truncate.rs",
+            ),
             ..Default::default()
         }
     }

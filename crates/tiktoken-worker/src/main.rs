@@ -23,6 +23,7 @@
 //! thin Arrow adapters over it.
 
 mod arrow_io;
+mod meta;
 mod scalar;
 mod tiktoken;
 
@@ -46,6 +47,17 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 .to_string(),
         ),
         tags: vec![
+            (
+                "vgi.title".to_string(),
+                "Tiktoken — LLM Token Counting & Chunking".to_string(),
+            ),
+            (
+                "vgi.keywords".to_string(),
+                "tiktoken, tokens, token counting, tokenize, bpe, encoding, cl100k_base, \
+                 o200k_base, llm, gpt-4, gpt-4o, context window, prompt budget, chunking, rag, \
+                 truncate"
+                    .to_string(),
+            ),
             (
                 "vgi.description_llm".to_string(),
                 "Count exact LLM tokens for text, tokenize text to BPE token ids, map a model \
@@ -89,6 +101,23 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 "LLM token counting and token-aware text chunking functions.".to_string(),
             ),
             tags: vec![
+                ("vgi.title".to_string(), "Tiktoken — main".to_string()),
+                (
+                    "vgi.keywords".to_string(),
+                    "tiktoken, tokens, count_tokens, tokenize, encoding_for_model, \
+                     truncate_to_tokens, chunk_by_tokens, bpe, cl100k_base, o200k_base, context \
+                     window, rag chunking"
+                        .to_string(),
+                ),
+                // VGI123 classifying tags (bare keys: domain/category/topic) for faceting.
+                ("domain".to_string(), "llm".to_string()),
+                ("category".to_string(), "tokenization".to_string()),
+                ("topic".to_string(), "token-counting-and-chunking".to_string()),
+                (
+                    "vgi.source_url".to_string(),
+                    "https://github.com/Query-farm/vgi-tiktoken/blob/main/crates/tiktoken-worker/src/main.rs"
+                        .to_string(),
+                ),
                 (
                     "vgi.description_llm".to_string(),
                     "Token-aware text functions: count tokens, tokenize to BPE ids, truncate to a \
@@ -99,6 +128,17 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 (
                     "vgi.description_md".to_string(),
                     "LLM token counting and token-aware text chunking functions over Apache Arrow."
+                        .to_string(),
+                ),
+                // VGI506 representative example queries for the schema.
+                (
+                    "vgi.example_queries".to_string(),
+                    "SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.');\n\
+                     SELECT tiktoken.main.count_tokens('Summarize this prompt.', 'gpt-4o');\n\
+                     SELECT tiktoken.main.tokenize('tiktoken is great!');\n\
+                     SELECT tiktoken.main.encoding_for_model('gpt-4o');\n\
+                     SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5);\n\
+                     SELECT tiktoken.main.chunk_by_tokens('A long document to split before embedding.', 8);"
                         .to_string(),
                 ),
             ],

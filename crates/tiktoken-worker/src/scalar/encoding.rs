@@ -36,6 +36,18 @@ impl ScalarFunction for EncodingForModel {
                     .into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Encoding For Model Name",
+                "Map an LLM model name (e.g. 'gpt-4o', 'gpt-4', 'gpt-3.5-turbo') to the name of \
+                 the tiktoken BPE encoding it uses (e.g. 'o200k_base', 'cl100k_base'). Returns \
+                 NULL for an unknown model. Use to pick the right encoding before counting or \
+                 tokenizing.",
+                "Map a model name to its tiktoken encoding name; NULL if unknown. \
+                 `encoding_for_model('gpt-4o')` -> `o200k_base`.",
+                "encoding, encoding for model, tiktoken encoding, model to encoding, cl100k_base, \
+                 o200k_base, p50k_base, bpe, tokenizer name",
+                "scalar/encoding.rs",
+            ),
             ..Default::default()
         }
     }

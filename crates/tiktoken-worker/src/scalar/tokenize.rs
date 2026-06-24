@@ -36,6 +36,17 @@ impl ScalarFunction for Tokenize {
                     .into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Tokenize To Ids (Default Encoding)",
+                "Tokenize text into its BPE token ids under the default encoding (cl100k_base) and \
+                 return them as an INTEGER[]. Empty text -> []; NULL -> NULL. Use to inspect how \
+                 a string is split into tokens.",
+                "Tokenize text to cl100k_base BPE token ids as INTEGER[]. \
+                 `tokenize('hello world')` -> `[15339, 1917]`.",
+                "tokenize, token ids, bpe ids, encode text, tokens array, cl100k_base, token \
+                 list, llm tokens",
+                "scalar/tokenize.rs",
+            ),
             ..Default::default()
         }
     }
@@ -91,6 +102,17 @@ impl ScalarFunction for TokenizeModel {
                         .into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Tokenize To Ids For Model",
+                "Tokenize text into its BPE token ids using the encoding for the given model name \
+                 (e.g. 'gpt-4o') and return them as an INTEGER[]. Unknown model -> NULL; empty \
+                 text -> []. Use to inspect how a specific model splits a string into tokens.",
+                "Tokenize text to BPE token ids using a model's encoding as INTEGER[]. \
+                 `tokenize('hi', 'gpt-4o')` uses o200k_base.",
+                "tokenize, token ids for model, bpe ids, encode text, gpt-4o tokens, tokens \
+                 array, o200k_base, llm tokens",
+                "scalar/tokenize.rs",
+            ),
             ..Default::default()
         }
     }

@@ -26,6 +26,14 @@ impl ScalarFunction for TiktokenVersion {
                 description: "Return the running tiktoken worker's version string.".into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Tiktoken Worker Version",
+                "Return the semantic version string of the running tiktoken worker binary. Useful \
+                 for diagnostics and confirming which build is attached.",
+                "Return the tiktoken worker version string, e.g. `tiktoken_version()` -> '0.1.0'.",
+                "version, build version, tiktoken_version, diagnostics, worker version, semver",
+                "scalar/version.rs",
+            ),
             ..Default::default()
         }
     }

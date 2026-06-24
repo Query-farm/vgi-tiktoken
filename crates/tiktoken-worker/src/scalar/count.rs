@@ -44,6 +44,17 @@ impl ScalarFunction for CountTokens {
                 description: "Count the GPT-4/3.5 (cl100k_base) tokens in a sentence.".into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Count Tokens (Default Encoding)",
+                "Count the exact number of LLM tokens in text under the default encoding \
+                 (cl100k_base, the GPT-4/3.5 tokenizer). Empty text -> 0; NULL -> NULL. Use to \
+                 budget prompts and context windows or estimate API token cost.",
+                "Count LLM tokens in text under the default cl100k_base encoding. \
+                 `count_tokens('hello world')` -> 2.",
+                "count tokens, token count, num tokens, tokenize count, context window, prompt \
+                 budget, cl100k_base, gpt-4, gpt-3.5, llm tokens",
+                "scalar/count.rs",
+            ),
             ..Default::default()
         }
     }
@@ -95,6 +106,17 @@ impl ScalarFunction for CountTokensModel {
                 description: "Count tokens with the encoding for a specific model (gpt-4o uses o200k_base) to budget a context window.".into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Count Tokens For Model",
+                "Count the exact number of LLM tokens in text using the encoding for the given \
+                 model name (e.g. 'gpt-4o'). Exact for OpenAI BPE families. Unknown model -> \
+                 NULL; empty text -> 0. Use to budget a specific model's context window.",
+                "Count LLM tokens in text using a model's encoding. \
+                 `count_tokens('hi', 'gpt-4o')` counts under o200k_base.",
+                "count tokens, token count for model, gpt-4o tokens, model token count, context \
+                 window, prompt budget, o200k_base, llm tokens",
+                "scalar/count.rs",
+            ),
             ..Default::default()
         }
     }

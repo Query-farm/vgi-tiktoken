@@ -20,6 +20,47 @@ use crate::arrow_io::{
 };
 use crate::tiktoken::{self, Encoding};
 
+/// Guaranteed-runnable, catalog-qualified examples (VGI509). Each `sql` is
+/// self-contained and re-runnable against an attached `tiktoken` worker. These
+/// span the worker's surface (count/tokenize/encoding/truncate/chunk) and all
+/// use only the bundled BPE encodings, so they execute with no network access.
+/// We omit `expected_result` deliberately — the linter only needs each query to
+/// execute cleanly.
+const EXECUTABLE_EXAMPLES: &str = r#"[
+  {
+    "description": "Count the GPT-4/3.5 (cl100k_base) tokens in a sentence.",
+    "sql": "SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.') AS n"
+  },
+  {
+    "description": "Count tokens with a specific model's encoding (gpt-4o uses o200k_base).",
+    "sql": "SELECT tiktoken.main.count_tokens('Summarize this prompt.', 'gpt-4o') AS n"
+  },
+  {
+    "description": "Get the BPE token ids for a string under the default encoding.",
+    "sql": "SELECT tiktoken.main.tokenize('tiktoken is great!') AS ids"
+  },
+  {
+    "description": "Map a model name to its tiktoken encoding name.",
+    "sql": "SELECT tiktoken.main.encoding_for_model('gpt-4o') AS encoding"
+  },
+  {
+    "description": "Truncate text to its first 5 tokens, decoded back to a string.",
+    "sql": "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5) AS clipped"
+  },
+  {
+    "description": "Split a document into non-overlapping 8-token chunks for embedding.",
+    "sql": "SELECT tiktoken.main.chunk_by_tokens('A long document to split before embedding for retrieval augmented generation.', 8) AS chunks"
+  },
+  {
+    "description": "Split a document into 8-token windows that share 2 overlapping tokens (RAG).",
+    "sql": "SELECT tiktoken.main.chunk_by_tokens('A long document to split into overlapping windows for retrieval.', 8, 2) AS chunks"
+  },
+  {
+    "description": "Return the running tiktoken worker version string.",
+    "sql": "SELECT tiktoken.main.tiktoken_version() AS version"
+  }
+]"#;
+
 /// Shared chunk builder over an already-validated `(text, max, overlap)`.
 fn append_chunks(builder: &mut ListBuilder<StringBuilder>, text: &str, max: usize, overlap: usize) {
     for chunk in tiktoken::chunk(text, max, overlap, Encoding::default_encoding()) {
@@ -47,6 +88,22 @@ impl ScalarFunction for ChunkByTokens {
                 description: "Split a document into non-overlapping windows of at most 256 tokens (cl100k_base) for embedding.".into(),
                 expected_output: None,
             }],
+            tags: {
+                let mut tags = crate::meta::object_tags(
+                    "Chunk By Tokens (No Overlap)",
+                    "Split text into chunks of at most max_tokens tokens (under cl100k_base) with \
+                     no overlap, returned as a VARCHAR[]. Each chunk decodes to valid text. NULL \
+                     text -> NULL; empty text or max_tokens <= 0 -> []. Use to window long \
+                     documents before embedding for RAG.",
+                    "Split text into non-overlapping token-bounded chunks as VARCHAR[]. \
+                     `chunk_by_tokens(text, 256)`.",
+                    "chunk, chunk by tokens, split text, token windows, rag chunking, document \
+                     chunks, embedding chunks, cl100k_base",
+                    "scalar/chunk.rs",
+                );
+                tags.push(("vgi.executable_examples".into(), EXECUTABLE_EXAMPLES.into()));
+                tags
+            },
             ..Default::default()
         }
     }
@@ -100,6 +157,18 @@ impl ScalarFunction for ChunkByTokensOverlap {
                 description: "Split a document into 256-token windows that share 32 overlapping tokens, preserving context across chunks for RAG.".into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Chunk By Tokens With Overlap",
+                "Split text into chunks of at most max_tokens tokens (under cl100k_base) with \
+                 `overlap` tokens shared between consecutive chunks (sliding RAG windows), \
+                 returned as a VARCHAR[]. overlap is clamped to max_tokens-1 so the window always \
+                 advances. NULL -> NULL. Use to preserve context across chunk boundaries.",
+                "Split text into overlapping token-bounded chunks as VARCHAR[]. \
+                 `chunk_by_tokens(text, 256, 32)`.",
+                "chunk, chunk by tokens, overlapping chunks, sliding window, rag chunking, token \
+                 windows, document chunks, overlap, cl100k_base",
+                "scalar/chunk.rs",
+            ),
             ..Default::default()
         }
     }
