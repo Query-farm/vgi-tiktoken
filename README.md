@@ -4,7 +4,9 @@
 
 <p align="center"><em>A <a href="https://query.farm">Query.Farm</a> VGI worker for DuckDB.</em></p>
 
-# vgi-tiktoken
+# Count LLM Tokens & Chunk Text for RAG in DuckDB
+
+> **vgi-tiktoken** · a [Query.Farm](https://query.farm) VGI worker · powered by tiktoken
 
 A [VGI](https://query.farm) worker that brings **exact LLM token counting** and
 **token-aware text chunking** to DuckDB over Apache Arrow, powered by
