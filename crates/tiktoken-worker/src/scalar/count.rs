@@ -16,7 +16,10 @@ use std::sync::Arc;
 use arrow_array::builder::Int32Builder;
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::DataType;
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi::{
+    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
+    ScalarFunction,
+};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::text_str;
@@ -36,6 +39,11 @@ impl ScalarFunction for CountTokens {
                           GPT-4/3.5 tokenizer). Empty text -> 0"
                 .into(),
             return_type: Some(DataType::Int32),
+            examples: vec![FunctionExample {
+                sql: "SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.');".into(),
+                description: "Count the GPT-4/3.5 (cl100k_base) tokens in a sentence.".into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }
@@ -82,6 +90,11 @@ impl ScalarFunction for CountTokensModel {
                           others. Unknown model -> NULL; empty text -> 0"
                 .into(),
             return_type: Some(DataType::Int32),
+            examples: vec![FunctionExample {
+                sql: "SELECT tiktoken.main.count_tokens('Summarize this prompt for GPT-4o.', 'gpt-4o');".into(),
+                description: "Count tokens with the encoding for a specific model (gpt-4o uses o200k_base) to budget a context window.".into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }

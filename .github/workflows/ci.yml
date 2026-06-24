@@ -53,6 +53,32 @@ jobs:
         env:
           RUSTDOCFLAGS: -D warnings
 
+  # Catalog metadata-quality gate: build the worker, then run vgi-lint against
+  # the release binary (the action force-installs the signed vgi community
+  # extension). Kept a separate job so the lint result is independently visible.
+  metadata-quality:
+    name: metadata-quality (vgi-lint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
+
+      - name: Build worker (release)
+        run: cargo build --release --bin tiktoken-worker
+
+      - name: vgi-lint
+        uses: Query-farm/vgi-lint-check@v1
+        with:
+          location: "${{ github.workspace }}/target/release/tiktoken-worker"
+          fail-on: info
+
   # Resolve the latest published haybarn release once, so the whole matrix tests
   # the same version (and we never hardcode/pin it).
   resolve-haybarn:

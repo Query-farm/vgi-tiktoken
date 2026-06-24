@@ -9,7 +9,10 @@ use std::sync::Arc;
 use arrow_array::builder::StringBuilder;
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::DataType;
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi::{
+    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
+    ScalarFunction,
+};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::{int_val, text_str};
@@ -29,6 +32,11 @@ impl ScalarFunction for TruncateToTokens {
                           back to VARCHAR. n <= 0 -> ''"
                 .into(),
             return_type: Some(DataType::Utf8),
+            examples: vec![FunctionExample {
+                sql: "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5);".into(),
+                description: "Keep only the first 5 cl100k_base tokens of the text, decoded back to a string.".into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }
@@ -80,6 +88,11 @@ impl ScalarFunction for TruncateToTokensModel {
                           n <= 0 -> ''"
                 .into(),
             return_type: Some(DataType::Utf8),
+            examples: vec![FunctionExample {
+                sql: "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5, 'gpt-4o');".into(),
+                description: "Truncate text to a token budget using a specific model's encoding (gpt-4o uses o200k_base).".into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }

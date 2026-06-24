@@ -7,7 +7,10 @@
 use arrow_array::builder::Int32Builder;
 use arrow_array::builder::ListBuilder;
 use arrow_array::{ArrayRef, RecordBatch};
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi::{
+    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
+    ScalarFunction,
+};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::{finish_list_int, list_int_builder, list_int_type, text_str};
@@ -27,6 +30,12 @@ impl ScalarFunction for Tokenize {
                           (cl100k_base) as INTEGER[]. Empty -> []; NULL -> NULL"
                 .into(),
             return_type: Some(list_int_type()),
+            examples: vec![FunctionExample {
+                sql: "SELECT tiktoken.main.tokenize('tiktoken is great!');".into(),
+                description: "Get the cl100k_base BPE token ids for a string as an INTEGER[]."
+                    .into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }
@@ -75,6 +84,13 @@ impl ScalarFunction for TokenizeModel {
                           name (e.g. 'gpt-4o') as INTEGER[]. Unknown model -> NULL; empty -> []"
                 .into(),
             return_type: Some(list_int_type()),
+            examples: vec![FunctionExample {
+                sql: "SELECT tiktoken.main.tokenize('hello world', 'gpt-4o');".into(),
+                description:
+                    "Tokenize text using a specific model's encoding (gpt-4o uses o200k_base)."
+                        .into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }

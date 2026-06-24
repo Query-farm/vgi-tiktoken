@@ -26,11 +26,88 @@ mod arrow_io;
 mod scalar;
 mod tiktoken;
 
+use vgi::catalog::{CatSchema, CatalogModel};
 use vgi::Worker;
 
 /// Worker version string, surfaced by `tiktoken_version()`.
 pub fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")
+}
+
+/// Catalog + schema metadata (description, provenance) surfaced to DuckDB and
+/// the `vgi-lint` metadata-quality linter. The function objects themselves are
+/// served from the registered scalars; this only adds catalog/schema-level
+/// comments and tags.
+fn catalog_metadata(name: &str) -> CatalogModel {
+    CatalogModel {
+        name: name.to_string(),
+        comment: Some(
+            "Exact LLM token counting and token-aware text chunking, powered by tiktoken-rs."
+                .to_string(),
+        ),
+        tags: vec![
+            (
+                "vgi.description_llm".to_string(),
+                "Count exact LLM tokens for text, tokenize text to BPE token ids, map a model \
+                 name to its tiktoken encoding, truncate text to a token budget, and split text \
+                 into token-bounded (optionally overlapping) chunks for RAG. Encodings are \
+                 OpenAI's BPE families (cl100k_base for GPT-4/3.5, o200k_base for GPT-4o, plus \
+                 p50k_base / r50k_base / o200k_harmony) and are bundled into the worker — no \
+                 network access. Use to budget prompts/context windows, estimate API token cost, \
+                 and chunk documents before embedding."
+                    .to_string(),
+            ),
+            (
+                "vgi.description_md".to_string(),
+                "# tiktoken\n\nExact LLM token counting and token-aware text chunking over Apache \
+                 Arrow, powered by [`tiktoken-rs`](https://crates.io/crates/tiktoken-rs) (BPE \
+                 encodings bundled — no network).\n\nScalars: `count_tokens`, `tokenize`, \
+                 `truncate_to_tokens`, `chunk_by_tokens`, `encoding_for_model`, \
+                 `tiktoken_version`.\n\nEncodings: cl100k_base, o200k_base, p50k_base, \
+                 r50k_base, o200k_harmony."
+                    .to_string(),
+            ),
+            ("vgi.author".to_string(), "Query.Farm".to_string()),
+            (
+                "vgi.copyright".to_string(),
+                "Copyright 2026 Query Farm LLC - https://query.farm".to_string(),
+            ),
+            ("vgi.license".to_string(), "MIT".to_string()),
+            (
+                "vgi.support_contact".to_string(),
+                "https://github.com/Query-farm/vgi-tiktoken/issues".to_string(),
+            ),
+            (
+                "vgi.support_policy_url".to_string(),
+                "https://github.com/Query-farm/vgi-tiktoken/blob/main/README.md".to_string(),
+            ),
+        ],
+        source_url: Some("https://github.com/Query-farm/vgi-tiktoken".to_string()),
+        schemas: vec![CatSchema {
+            name: "main".to_string(),
+            comment: Some(
+                "LLM token counting and token-aware text chunking functions.".to_string(),
+            ),
+            tags: vec![
+                (
+                    "vgi.description_llm".to_string(),
+                    "Token-aware text functions: count tokens, tokenize to BPE ids, truncate to a \
+                     token budget, chunk into token-bounded windows, and map a model name to its \
+                     tiktoken encoding."
+                        .to_string(),
+                ),
+                (
+                    "vgi.description_md".to_string(),
+                    "LLM token counting and token-aware text chunking functions over Apache Arrow."
+                        .to_string(),
+                ),
+            ],
+            views: Vec::new(),
+            macros: Vec::new(),
+            tables: Vec::new(),
+        }],
+        ..Default::default()
+    }
 }
 
 fn main() {
@@ -45,8 +122,11 @@ fn main() {
     if std::env::var_os("VGI_WORKER_CATALOG_NAME").is_none() {
         std::env::set_var("VGI_WORKER_CATALOG_NAME", "tiktoken");
     }
+    let catalog_name =
+        std::env::var("VGI_WORKER_CATALOG_NAME").unwrap_or_else(|_| "tiktoken".to_string());
 
     let mut worker = Worker::new();
     scalar::register(&mut worker);
+    worker.set_catalog(catalog_metadata(&catalog_name));
     worker.run();
 }

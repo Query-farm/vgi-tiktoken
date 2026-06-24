@@ -9,7 +9,10 @@
 
 use arrow_array::builder::{ListBuilder, StringBuilder};
 use arrow_array::{ArrayRef, RecordBatch};
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi::{
+    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
+    ScalarFunction,
+};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::{
@@ -39,6 +42,11 @@ impl ScalarFunction for ChunkByTokens {
                           no overlap, as VARCHAR[]. Each chunk decodes to valid text. NULL -> NULL"
                 .into(),
             return_type: Some(list_varchar_type()),
+            examples: vec![FunctionExample {
+                sql: "SELECT tiktoken.main.chunk_by_tokens('A long document to split before embedding.', 256);".into(),
+                description: "Split a document into non-overlapping windows of at most 256 tokens (cl100k_base) for embedding.".into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }
@@ -87,6 +95,11 @@ impl ScalarFunction for ChunkByTokensOverlap {
                           VARCHAR[]. overlap is clamped to max_tokens-1. NULL -> NULL"
                 .into(),
             return_type: Some(list_varchar_type()),
+            examples: vec![FunctionExample {
+                sql: "SELECT tiktoken.main.chunk_by_tokens('A long RAG document to split into overlapping windows.', 256, 32);".into(),
+                description: "Split a document into 256-token windows that share 32 overlapping tokens, preserving context across chunks for RAG.".into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }

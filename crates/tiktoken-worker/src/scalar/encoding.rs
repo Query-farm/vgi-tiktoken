@@ -8,7 +8,10 @@ use std::sync::Arc;
 use arrow_array::builder::StringBuilder;
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::DataType;
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi::{
+    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
+    ScalarFunction,
+};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::text_str;
@@ -27,6 +30,12 @@ impl ScalarFunction for EncodingForModel {
                           (e.g. 'gpt-4o' -> 'o200k_base'); NULL if the model is unknown"
                 .into(),
             return_type: Some(DataType::Utf8),
+            examples: vec![FunctionExample {
+                sql: "SELECT tiktoken.main.encoding_for_model('gpt-4o');".into(),
+                description: "Look up the tiktoken encoding a model uses (gpt-4o -> 'o200k_base')."
+                    .into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }
