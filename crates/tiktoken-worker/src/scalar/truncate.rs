@@ -44,9 +44,16 @@ impl ScalarFunction for TruncateToTokens {
                  Use to clip text to a token budget for a prompt or context window.",
                 "Truncate text to its first n cl100k_base tokens, decoded back to text. \
                  `truncate_to_tokens(text, 5)`.",
-                "truncate, truncate to tokens, clip tokens, token budget, limit tokens, first n \
-                 tokens, context window, cl100k_base",
-                "scalar/truncate.rs",
+                &[
+                    "truncate",
+                    "truncate to tokens",
+                    "clip tokens",
+                    "token budget",
+                    "limit tokens",
+                    "first n tokens",
+                    "context window",
+                    "cl100k_base",
+                ],
             ),
             ..Default::default()
         }
@@ -54,8 +61,14 @@ impl ScalarFunction for TruncateToTokens {
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
         vec![
-            ArgSpec::any_column("text", 0, "Text to truncate (VARCHAR)"),
-            ArgSpec::any_column("n", 1, "Maximum number of tokens to keep (INTEGER)"),
+            ArgSpec::column("text", 0, "varchar", "The text to truncate."),
+            ArgSpec::column(
+                "n",
+                1,
+                "int32",
+                "The maximum number of leading tokens to keep; the text is decoded back from these \
+                 tokens. A value of 0 or less yields an empty string.",
+            ),
         ]
     }
 
@@ -111,9 +124,16 @@ impl ScalarFunction for TruncateToTokensModel {
                  -> ''. Use to clip text to a specific model's token budget.",
                 "Truncate text to its first n tokens using a model's encoding, decoded back to \
                  text. `truncate_to_tokens(text, 5, 'gpt-4o')`.",
-                "truncate, truncate to tokens for model, clip tokens, token budget, gpt-4o, limit \
-                 tokens, context window, o200k_base",
-                "scalar/truncate.rs",
+                &[
+                    "truncate",
+                    "truncate to tokens for model",
+                    "clip tokens",
+                    "token budget",
+                    "gpt-4o",
+                    "limit tokens",
+                    "context window",
+                    "o200k_base",
+                ],
             ),
             ..Default::default()
         }
@@ -121,12 +141,21 @@ impl ScalarFunction for TruncateToTokensModel {
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
         vec![
-            ArgSpec::any_column("text", 0, "Text to truncate (VARCHAR)"),
-            ArgSpec::any_column("n", 1, "Maximum number of tokens to keep (INTEGER)"),
-            ArgSpec::any_column(
+            ArgSpec::column("text", 0, "varchar", "The text to truncate."),
+            ArgSpec::column(
+                "n",
+                1,
+                "int32",
+                "The maximum number of leading tokens to keep; the text is decoded back from these \
+                 tokens. A value of 0 or less yields an empty string.",
+            ),
+            ArgSpec::column(
                 "model",
                 2,
-                "Model or encoding name, e.g. 'gpt-4o' (VARCHAR)",
+                "varchar",
+                "An LLM model name (e.g. 'gpt-4o') or a tiktoken encoding name (e.g. 'o200k_base') \
+                 that selects which BPE encoding tokenizes the text before truncation. An unknown \
+                 model yields NULL.",
             ),
         ]
     }

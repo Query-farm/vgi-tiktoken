@@ -51,16 +51,30 @@ impl ScalarFunction for CountTokens {
                  budget prompts and context windows or estimate API token cost.",
                 "Count LLM tokens in text under the default cl100k_base encoding. \
                  `count_tokens('hello world')` -> 2.",
-                "count tokens, token count, num tokens, tokenize count, context window, prompt \
-                 budget, cl100k_base, gpt-4, gpt-3.5, llm tokens",
-                "scalar/count.rs",
+                &[
+                    "count tokens",
+                    "token count",
+                    "num tokens",
+                    "tokenize count",
+                    "context window",
+                    "prompt budget",
+                    "cl100k_base",
+                    "gpt-4",
+                    "gpt-3.5",
+                    "llm tokens",
+                ],
             ),
             ..Default::default()
         }
     }
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
-        vec![ArgSpec::any_column("text", 0, "Text to tokenize (VARCHAR)")]
+        vec![ArgSpec::column(
+            "text",
+            0,
+            "varchar",
+            "The text whose tokens are counted.",
+        )]
     }
 
     fn on_bind(&self, _params: &BindParams) -> Result<BindResponse> {
@@ -113,9 +127,16 @@ impl ScalarFunction for CountTokensModel {
                  NULL; empty text -> 0. Use to budget a specific model's context window.",
                 "Count LLM tokens in text using a model's encoding. \
                  `count_tokens('hi', 'gpt-4o')` counts under o200k_base.",
-                "count tokens, token count for model, gpt-4o tokens, model token count, context \
-                 window, prompt budget, o200k_base, llm tokens",
-                "scalar/count.rs",
+                &[
+                    "count tokens",
+                    "token count for model",
+                    "gpt-4o tokens",
+                    "model token count",
+                    "context window",
+                    "prompt budget",
+                    "o200k_base",
+                    "llm tokens",
+                ],
             ),
             ..Default::default()
         }
@@ -123,11 +144,14 @@ impl ScalarFunction for CountTokensModel {
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
         vec![
-            ArgSpec::any_column("text", 0, "Text to tokenize (VARCHAR)"),
-            ArgSpec::any_column(
+            ArgSpec::column("text", 0, "varchar", "The text whose tokens are counted."),
+            ArgSpec::column(
                 "model",
                 1,
-                "Model or encoding name, e.g. 'gpt-4o' (VARCHAR)",
+                "varchar",
+                "An LLM model name (e.g. 'gpt-4o') or a tiktoken encoding name (e.g. 'o200k_base') \
+                 that selects which BPE encoding is used to count tokens. An unknown model yields \
+                 NULL.",
             ),
         ]
     }

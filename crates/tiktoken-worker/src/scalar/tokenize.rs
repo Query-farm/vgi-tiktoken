@@ -43,16 +43,28 @@ impl ScalarFunction for Tokenize {
                  a string is split into tokens.",
                 "Tokenize text to cl100k_base BPE token ids as INTEGER[]. \
                  `tokenize('hello world')` -> `[15339, 1917]`.",
-                "tokenize, token ids, bpe ids, encode text, tokens array, cl100k_base, token \
-                 list, llm tokens",
-                "scalar/tokenize.rs",
+                &[
+                    "tokenize",
+                    "token ids",
+                    "bpe ids",
+                    "encode text",
+                    "tokens array",
+                    "cl100k_base",
+                    "token list",
+                    "llm tokens",
+                ],
             ),
             ..Default::default()
         }
     }
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
-        vec![ArgSpec::any_column("text", 0, "Text to tokenize (VARCHAR)")]
+        vec![ArgSpec::column(
+            "text",
+            0,
+            "varchar",
+            "The text to split into BPE token ids.",
+        )]
     }
 
     fn on_bind(&self, _params: &BindParams) -> Result<BindResponse> {
@@ -109,9 +121,16 @@ impl ScalarFunction for TokenizeModel {
                  text -> []. Use to inspect how a specific model splits a string into tokens.",
                 "Tokenize text to BPE token ids using a model's encoding as INTEGER[]. \
                  `tokenize('hi', 'gpt-4o')` uses o200k_base.",
-                "tokenize, token ids for model, bpe ids, encode text, gpt-4o tokens, tokens \
-                 array, o200k_base, llm tokens",
-                "scalar/tokenize.rs",
+                &[
+                    "tokenize",
+                    "token ids for model",
+                    "bpe ids",
+                    "encode text",
+                    "gpt-4o tokens",
+                    "tokens array",
+                    "o200k_base",
+                    "llm tokens",
+                ],
             ),
             ..Default::default()
         }
@@ -119,11 +138,18 @@ impl ScalarFunction for TokenizeModel {
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
         vec![
-            ArgSpec::any_column("text", 0, "Text to tokenize (VARCHAR)"),
-            ArgSpec::any_column(
+            ArgSpec::column(
+                "text",
+                0,
+                "varchar",
+                "The text to split into BPE token ids.",
+            ),
+            ArgSpec::column(
                 "model",
                 1,
-                "Model or encoding name, e.g. 'gpt-4o' (VARCHAR)",
+                "varchar",
+                "An LLM model name (e.g. 'gpt-4o') or a tiktoken encoding name (e.g. 'o200k_base') \
+                 that selects which BPE encoding tokenizes the text. An unknown model yields NULL.",
             ),
         ]
     }

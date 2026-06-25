@@ -97,9 +97,16 @@ impl ScalarFunction for ChunkByTokens {
                      documents before embedding for RAG.",
                     "Split text into non-overlapping token-bounded chunks as VARCHAR[]. \
                      `chunk_by_tokens(text, 256)`.",
-                    "chunk, chunk by tokens, split text, token windows, rag chunking, document \
-                     chunks, embedding chunks, cl100k_base",
-                    "scalar/chunk.rs",
+                    &[
+                        "chunk",
+                        "chunk by tokens",
+                        "split text",
+                        "token windows",
+                        "rag chunking",
+                        "document chunks",
+                        "embedding chunks",
+                        "cl100k_base",
+                    ],
                 );
                 tags.push(("vgi.executable_examples".into(), EXECUTABLE_EXAMPLES.into()));
                 tags
@@ -110,8 +117,14 @@ impl ScalarFunction for ChunkByTokens {
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
         vec![
-            ArgSpec::any_column("text", 0, "Text to chunk (VARCHAR)"),
-            ArgSpec::any_column("max_tokens", 1, "Maximum tokens per chunk (INTEGER)"),
+            ArgSpec::column("text", 0, "varchar", "The text to split into chunks."),
+            ArgSpec::column(
+                "max_tokens",
+                1,
+                "int32",
+                "The maximum number of tokens allowed in each chunk. A value of 0 or less yields \
+                 an empty list.",
+            ),
         ]
     }
 
@@ -165,9 +178,17 @@ impl ScalarFunction for ChunkByTokensOverlap {
                  advances. NULL -> NULL. Use to preserve context across chunk boundaries.",
                 "Split text into overlapping token-bounded chunks as VARCHAR[]. \
                  `chunk_by_tokens(text, 256, 32)`.",
-                "chunk, chunk by tokens, overlapping chunks, sliding window, rag chunking, token \
-                 windows, document chunks, overlap, cl100k_base",
-                "scalar/chunk.rs",
+                &[
+                    "chunk",
+                    "chunk by tokens",
+                    "overlapping chunks",
+                    "sliding window",
+                    "rag chunking",
+                    "token windows",
+                    "document chunks",
+                    "overlap",
+                    "cl100k_base",
+                ],
             ),
             ..Default::default()
         }
@@ -175,12 +196,20 @@ impl ScalarFunction for ChunkByTokensOverlap {
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
         vec![
-            ArgSpec::any_column("text", 0, "Text to chunk (VARCHAR)"),
-            ArgSpec::any_column("max_tokens", 1, "Maximum tokens per chunk (INTEGER)"),
-            ArgSpec::any_column(
+            ArgSpec::column("text", 0, "varchar", "The text to split into chunks."),
+            ArgSpec::column(
+                "max_tokens",
+                1,
+                "int32",
+                "The maximum number of tokens allowed in each chunk. A value of 0 or less yields \
+                 an empty list.",
+            ),
+            ArgSpec::column(
                 "overlap",
                 2,
-                "Tokens shared between consecutive chunks (INTEGER)",
+                "int32",
+                "The number of tokens each chunk shares with the previous one (sliding RAG \
+                 windows); it is clamped to max_tokens minus 1 so the window always advances.",
             ),
         ]
     }

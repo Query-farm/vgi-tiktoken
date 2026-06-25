@@ -44,19 +44,29 @@ impl ScalarFunction for EncodingForModel {
                  tokenizing.",
                 "Map a model name to its tiktoken encoding name; NULL if unknown. \
                  `encoding_for_model('gpt-4o')` -> `o200k_base`.",
-                "encoding, encoding for model, tiktoken encoding, model to encoding, cl100k_base, \
-                 o200k_base, p50k_base, bpe, tokenizer name",
-                "scalar/encoding.rs",
+                &[
+                    "encoding",
+                    "encoding for model",
+                    "tiktoken encoding",
+                    "model to encoding",
+                    "cl100k_base",
+                    "o200k_base",
+                    "p50k_base",
+                    "bpe",
+                    "tokenizer name",
+                ],
             ),
             ..Default::default()
         }
     }
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
-        vec![ArgSpec::any_column(
+        vec![ArgSpec::column(
             "model",
             0,
-            "Model name, e.g. 'gpt-4o' (VARCHAR)",
+            "varchar",
+            "An LLM model name (e.g. 'gpt-4o') to map to the tiktoken encoding it uses. An unknown \
+             model yields NULL.",
         )]
     }
 

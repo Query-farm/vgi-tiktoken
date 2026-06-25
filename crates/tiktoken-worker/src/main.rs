@@ -53,10 +53,24 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ),
             (
                 "vgi.keywords".to_string(),
-                "tiktoken, tokens, token counting, tokenize, bpe, encoding, cl100k_base, \
-                 o200k_base, llm, gpt-4, gpt-4o, context window, prompt budget, chunking, rag, \
-                 truncate"
-                    .to_string(),
+                meta::keywords_json(&[
+                    "tiktoken",
+                    "tokens",
+                    "token counting",
+                    "tokenize",
+                    "bpe",
+                    "encoding",
+                    "cl100k_base",
+                    "o200k_base",
+                    "llm",
+                    "gpt-4",
+                    "gpt-4o",
+                    "context window",
+                    "prompt budget",
+                    "chunking",
+                    "rag",
+                    "truncate",
+                ]),
             ),
             (
                 "vgi.doc_llm".to_string(),
@@ -104,20 +118,27 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 ("vgi.title".to_string(), "Tiktoken — main".to_string()),
                 (
                     "vgi.keywords".to_string(),
-                    "tiktoken, tokens, count_tokens, tokenize, encoding_for_model, \
-                     truncate_to_tokens, chunk_by_tokens, bpe, cl100k_base, o200k_base, context \
-                     window, rag chunking"
-                        .to_string(),
+                    meta::keywords_json(&[
+                        "tiktoken",
+                        "tokens",
+                        "count_tokens",
+                        "tokenize",
+                        "encoding_for_model",
+                        "truncate_to_tokens",
+                        "chunk_by_tokens",
+                        "bpe",
+                        "cl100k_base",
+                        "o200k_base",
+                        "context window",
+                        "rag chunking",
+                    ]),
                 ),
                 // VGI123 classifying tags (bare keys: domain/category/topic) for faceting.
                 ("domain".to_string(), "llm".to_string()),
                 ("category".to_string(), "tokenization".to_string()),
                 ("topic".to_string(), "token-counting-and-chunking".to_string()),
-                (
-                    "vgi.source_url".to_string(),
-                    "https://github.com/Query-farm/vgi-tiktoken/blob/main/crates/tiktoken-worker/src/main.rs"
-                        .to_string(),
-                ),
+                // VGI139: per-object source_url is omitted; provenance lives only
+                // on the catalog object (see `source_url` above).
                 (
                     "vgi.doc_llm".to_string(),
                     "Token-aware text functions for the `tiktoken.main` schema: `count_tokens` \

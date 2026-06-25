@@ -5,37 +5,55 @@
 //! - `vgi.title` (VGI124)        — human-friendly display name
 //! - `vgi.doc_llm` (VGI112) — Markdown narrative aimed at LLMs/agents
 //! - `vgi.doc_md` (VGI113)  — Markdown narrative for human docs
-//! - `vgi.keywords` (VGI126)        — comma-separated search terms/synonyms
-//! - `vgi.source_url` (VGI128)      — link to the implementing source file
+//! - `vgi.keywords` (VGI126)        — search terms/synonyms as a JSON array of strings
 //!
-//! `source_url(file)` builds the canonical GitHub blob URL for a source file so
-//! every object points at exactly where it is implemented.
+//! Per-object `vgi.source_url` is intentionally **not** emitted here: VGI139
+//! requires `source_url` to live only on the catalog object, so provenance is
+//! recorded once at the catalog level (see `main.rs`).
 
-/// Base GitHub blob URL for source files in this repo (pinned to `main`).
-const SOURCE_BASE: &str =
-    "https://github.com/Query-farm/vgi-tiktoken/blob/main/crates/tiktoken-worker/src";
-
-/// Build the implementation `vgi.source_url` for a file under
-/// `tiktoken-worker/src`, e.g. `source_url("scalar/count.rs")`.
-pub fn source_url(relative_path: &str) -> String {
-    format!("{SOURCE_BASE}/{relative_path}")
+/// Render a list of keyword strings as a JSON array literal (VGI138 expects
+/// `vgi.keywords` to be a JSON array of strings, not a comma-separated string).
+///
+/// Each term is JSON-escaped so quotes/backslashes/control characters in a
+/// keyword can never produce malformed JSON.
+pub fn keywords_json(keywords: &[&str]) -> String {
+    let mut out = String::from("[");
+    for (i, kw) in keywords.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        out.push('"');
+        for ch in kw.chars() {
+            match ch {
+                '"' => out.push_str("\\\""),
+                '\\' => out.push_str("\\\\"),
+                '\n' => out.push_str("\\n"),
+                '\r' => out.push_str("\\r"),
+                '\t' => out.push_str("\\t"),
+                c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+                c => out.push(c),
+            }
+        }
+        out.push('"');
+    }
+    out.push(']');
+    out
 }
 
-/// Build the five standard per-object discovery/description tags.
+/// Build the four standard per-object discovery/description tags.
 ///
-/// `relative_path` is the implementing file relative to `tiktoken-worker/src`.
+/// `keywords` is the list of search terms/synonyms for this object; it is
+/// serialized to a JSON array of strings for `vgi.keywords` (VGI138).
 pub fn object_tags(
     title: &str,
     description_llm: &str,
     description_md: &str,
-    keywords: &str,
-    relative_path: &str,
+    keywords: &[&str],
 ) -> Vec<(String, String)> {
     vec![
         ("vgi.title".to_string(), title.to_string()),
         ("vgi.doc_llm".to_string(), description_llm.to_string()),
         ("vgi.doc_md".to_string(), description_md.to_string()),
-        ("vgi.keywords".to_string(), keywords.to_string()),
-        ("vgi.source_url".to_string(), source_url(relative_path)),
+        ("vgi.keywords".to_string(), keywords_json(keywords)),
     ]
 }
