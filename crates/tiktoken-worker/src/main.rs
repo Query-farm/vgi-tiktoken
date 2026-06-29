@@ -85,12 +85,40 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ),
             (
                 "vgi.doc_md".to_string(),
-                "# tiktoken\n\nExact LLM token counting and token-aware text chunking over Apache \
-                 Arrow, powered by [`tiktoken-rs`](https://crates.io/crates/tiktoken-rs) (BPE \
-                 encodings bundled — no network).\n\nScalars: `count_tokens`, `tokenize`, \
-                 `truncate_to_tokens`, `chunk_by_tokens`, `encoding_for_model`, \
-                 `tiktoken_version`.\n\nEncodings: cl100k_base, o200k_base, p50k_base, \
-                 r50k_base, o200k_harmony."
+                "# tiktoken — Count LLM Tokens & Chunk Text in SQL\n\n\
+                 **Count LLM tokens, tokenize text, and split documents into token-bounded chunks \
+                 directly in DuckDB SQL** — exact OpenAI-compatible BPE token counting and \
+                 token-aware text chunking for prompt budgeting, API cost estimation, and \
+                 retrieval-augmented generation (RAG), with no Python and no network calls.\n\n\
+                 This extension is for anyone who needs to know exactly how many tokens a piece of \
+                 text will consume before sending it to a large language model. Instead of \
+                 approximating with character or word counts, `tiktoken` computes the *real* token \
+                 count using the same byte-pair-encoding (BPE) vocabularies that OpenAI's GPT models \
+                 use. That makes it ideal for staying within context-window limits, estimating the \
+                 cost of an API call, deduplicating or filtering rows by token length, and preparing \
+                 large corpora for embedding pipelines — all from ordinary SQL over your existing \
+                 tables.\n\n\
+                 Under the hood the worker wraps the Rust crate \
+                 [`tiktoken-rs`](https://github.com/zurawiki/tiktoken-rs) \
+                 ([docs](https://docs.rs/tiktoken-rs)), a fast, pure-Rust port of OpenAI's \
+                 [`tiktoken`](https://github.com/openai/tiktoken) tokenizer. The BPE encodings are \
+                 **bundled into the binary** and built lazily on first use, so token counting works \
+                 fully offline with no model download. The supported encodings cover every modern \
+                 OpenAI model family: `cl100k_base` (GPT-4 / GPT-3.5), `o200k_base` (GPT-4o), \
+                 `p50k_base`, `r50k_base`, and `o200k_harmony`. Results are exact and deterministic, \
+                 so the same text always yields the same count and the same token-id sequence.\n\n\
+                 The extension exposes a small, composable set of scalar SQL functions in the \
+                 `tiktoken.main` schema. Use `count_tokens(text[, model])` to get an exact token \
+                 count, `tokenize(text[, model])` to return the raw BPE token ids as an \
+                 `INTEGER[]`, and `encoding_for_model(model)` to map a model name (e.g. `'gpt-4o'`) \
+                 to its encoding name. For shaping text to fit a budget, `truncate_to_tokens(text, \
+                 n[, model])` clips text to the first *n* tokens (decoded back to a string), and \
+                 `chunk_by_tokens(text, max[, overlap])` splits text into token-bounded, optionally \
+                 overlapping `VARCHAR[]` windows that are perfect as RAG chunks before embedding. \
+                 `tiktoken_version()` reports the worker version. Each text function offers a \
+                 default-encoding overload (`cl100k_base`) and a model-aware overload; unknown model \
+                 names return `NULL` and `NULL` input flows through to `NULL`. Built and maintained \
+                 by [Query.Farm](https://query.farm)."
                     .to_string(),
             ),
             ("vgi.author".to_string(), "Query.Farm".to_string()),
