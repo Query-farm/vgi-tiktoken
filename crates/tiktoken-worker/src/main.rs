@@ -86,6 +86,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             (
                 "vgi.doc_md".to_string(),
                 "# tiktoken — Count LLM Tokens & Chunk Text in SQL\n\n\
+                 ![tiktoken logo](https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/OpenAI_Logo.svg/250px-OpenAI_Logo.svg.png)\n\n\
                  **Count LLM tokens, tokenize text, and split documents into token-bounded chunks \
                  directly in DuckDB SQL** — exact OpenAI-compatible BPE token counting and \
                  token-aware text chunking for prompt budgeting, API cost estimation, and \
