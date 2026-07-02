@@ -39,6 +39,7 @@ impl ScalarFunction for TiktokenVersion {
                     "worker version",
                     "semver",
                 ],
+                "reference",
             ),
             ..Default::default()
         }

@@ -108,18 +108,16 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                  OpenAI model family: `cl100k_base` (GPT-4 / GPT-3.5), `o200k_base` (GPT-4o), \
                  `p50k_base`, `r50k_base`, and `o200k_harmony`. Results are exact and deterministic, \
                  so the same text always yields the same count and the same token-id sequence.\n\n\
-                 The extension exposes a small, composable set of scalar SQL functions in the \
-                 `tiktoken.main` schema. Use `count_tokens(text[, model])` to get an exact token \
-                 count, `tokenize(text[, model])` to return the raw BPE token ids as an \
-                 `INTEGER[]`, and `encoding_for_model(model)` to map a model name (e.g. `'gpt-4o'`) \
-                 to its encoding name. For shaping text to fit a budget, `truncate_to_tokens(text, \
-                 n[, model])` clips text to the first *n* tokens (decoded back to a string), and \
-                 `chunk_by_tokens(text, max[, overlap])` splits text into token-bounded, optionally \
-                 overlapping `VARCHAR[]` windows that are perfect as RAG chunks before embedding. \
-                 `tiktoken_version()` reports the worker version. Each text function offers a \
-                 default-encoding overload (`cl100k_base`) and a model-aware overload; unknown model \
-                 names return `NULL` and `NULL` input flows through to `NULL`. Built and maintained \
-                 by [Query.Farm](https://query.farm)."
+                 The worker exposes a small, composable set of scalar SQL functions in the \
+                 `tiktoken.main` schema; list that schema to discover them and their signatures. \
+                 They cover the everyday token-oriented tasks: getting an exact token count for a \
+                 string, returning the raw BPE token ids as an `INTEGER[]`, mapping a model name \
+                 (e.g. `'gpt-4o'`) to its encoding name, clipping text to a fixed token budget, and \
+                 splitting text into token-bounded, optionally overlapping windows that make ideal \
+                 RAG chunks before embedding. Each text function offers a default-encoding form \
+                 (`cl100k_base`) and a model-aware form that accepts a model or encoding name; \
+                 unknown model names return `NULL`, and `NULL` input flows through to `NULL`. Built \
+                 and maintained by [Query.Farm](https://query.farm)."
                     .to_string(),
             ),
             ("vgi.author".to_string(), "Query.Farm".to_string()),
@@ -135,6 +133,24 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             (
                 "vgi.support_policy_url".to_string(),
                 "https://github.com/Query-farm/vgi-tiktoken/blob/main/README.md".to_string(),
+            ),
+            // VGI152: an analyst-task suite so `vgi-lint simulate` can measure how
+            // well an agent actually drives this worker. Each task is a natural
+            // prompt plus the canonical `reference_sql` that answers it. Every task
+            // is deterministic and self-contained (tiktoken is exact and bundles
+            // its encodings), so none needs external fixtures.
+            (
+                "vgi.agent_test_tasks".to_string(),
+                r#"[
+  {"name": "worker_version", "prompt": "Which version of the tiktoken worker is currently attached? Return the single version string in a column named worker_version.", "reference_sql": "SELECT tiktoken.main.tiktoken_version() AS worker_version"},
+  {"name": "count_default_encoding", "prompt": "How many GPT-4 / GPT-3.5 (cl100k_base) tokens are in the text 'hello world'? Return the count in a column named token_count.", "reference_sql": "SELECT tiktoken.main.count_tokens('hello world') AS token_count"},
+  {"name": "count_for_model", "prompt": "Using the tokenizer for the model 'gpt-4o', how many tokens are in the text 'hello world'? Return the count in a column named token_count.", "reference_sql": "SELECT tiktoken.main.count_tokens('hello world', 'gpt-4o') AS token_count"},
+  {"name": "encoding_for_model", "prompt": "Which tiktoken encoding does the model 'gpt-4o' use? Return the encoding name in a column named encoding.", "reference_sql": "SELECT tiktoken.main.encoding_for_model('gpt-4o') AS encoding"},
+  {"name": "tokenize_ids", "prompt": "Return the raw cl100k_base BPE token ids for the text 'hello world' as an integer array in a column named token_ids.", "reference_sql": "SELECT tiktoken.main.tokenize('hello world') AS token_ids"},
+  {"name": "truncate_to_budget", "prompt": "Truncate the text 'The quick brown fox jumps over the lazy dog.' to its first 5 cl100k_base tokens and return the resulting string in a column named clipped.", "reference_sql": "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5) AS clipped"},
+  {"name": "chunk_count", "prompt": "Split the text 'The quick brown fox jumps over the lazy dog.' into chunks of at most 5 tokens (cl100k_base) and return how many chunks result, in a column named chunk_count.", "reference_sql": "SELECT len(tiktoken.main.chunk_by_tokens('The quick brown fox jumps over the lazy dog.', 5)) AS chunk_count"}
+]"#
+                .to_string(),
             ),
         ],
         source_url: Some("https://github.com/Query-farm/vgi-tiktoken".to_string()),
@@ -166,30 +182,44 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 ("domain".to_string(), "llm".to_string()),
                 ("category".to_string(), "tokenization".to_string()),
                 ("topic".to_string(), "token-counting-and-chunking".to_string()),
+                // VGI413: the schema's category registry — an ordered list of the
+                // navigation sections its objects are grouped into. Each function
+                // carries a `vgi.category` naming one of these.
+                (
+                    "vgi.categories".to_string(),
+                    r#"[
+  {"name": "count", "description": "Count the exact number of LLM tokens in text."},
+  {"name": "tokenize", "description": "Convert text into its raw BPE token ids."},
+  {"name": "shape", "description": "Fit text to a token budget by truncating it or splitting it into token-bounded chunks for RAG."},
+  {"name": "reference", "description": "Map model names to tiktoken encodings and inspect the worker build."}
+]"#
+                    .to_string(),
+                ),
                 // VGI139: per-object source_url is omitted; provenance lives only
                 // on the catalog object (see `source_url` above).
                 (
                     "vgi.doc_llm".to_string(),
-                    "Token-aware text functions for the `tiktoken.main` schema: `count_tokens` \
-                     (exact token count), `tokenize` (BPE token ids), `truncate_to_tokens` (clip \
-                     text to a token budget), `chunk_by_tokens` (token-bounded, optionally \
-                     overlapping RAG windows), `encoding_for_model` (model name → encoding name), \
-                     and `tiktoken_version`. Each text function has a default-encoding overload \
-                     (cl100k_base) and a model-arity overload that resolves a model or encoding \
-                     name. Unknown models return NULL; NULL text flows through to NULL."
+                    "Token-aware text functions over Apache Arrow. They compute exact LLM token \
+                     counts, expose the raw BPE token ids of a string, clip text to a fixed token \
+                     budget, split text into token-bounded (optionally overlapping) RAG windows, \
+                     and map model names to their tiktoken encodings. Each text function has a \
+                     default-encoding form (cl100k_base) and a model-arity form that resolves a \
+                     model or encoding name. Unknown models return NULL; NULL text flows through \
+                     to NULL. List the schema to discover the exact functions and their signatures."
                         .to_string(),
                 ),
                 (
                     "vgi.doc_md".to_string(),
-                    "## tiktoken.main\n\nLLM token counting and token-aware text chunking over \
-                     Apache Arrow.\n\n### Functions\n\n- **count_tokens(text[, model])** — exact \
-                     token count.\n- **tokenize(text[, model])** — BPE token ids as `INTEGER[]`.\n\
-                     - **truncate_to_tokens(text, n[, model])** — first `n` tokens, decoded.\n- \
-                     **chunk_by_tokens(text, max[, overlap])** — token-bounded windows as \
-                     `VARCHAR[]` for RAG.\n- **encoding_for_model(model)** — model name → \
-                     encoding name.\n- **tiktoken_version()** — worker version.\n\n### Notes\n\n\
-                     The default encoding is `cl100k_base`; pass a model name (e.g. `gpt-4o`) to \
-                     select another. Encodings are bundled — no network access."
+                    "## tiktoken.main\n\nThe primary schema of the tiktoken worker. It brings \
+                     **exact LLM token counting** and **token-aware text chunking** to DuckDB SQL \
+                     over Apache Arrow, grouped into a few areas: **counting** tokens, \
+                     **tokenizing** text into raw BPE ids, **shaping** text to fit a token budget, \
+                     and **reference** lookups that map a model name to its encoding and report \
+                     the worker build.\n\nThe default encoding is `cl100k_base` (GPT-4 / GPT-3.5); \
+                     pass a model name (e.g. `gpt-4o`) to select another. Encodings are bundled \
+                     into the binary, so token counting is exact, deterministic, and needs no \
+                     network access. List the schema to discover the exact functions and their \
+                     signatures."
                         .to_string(),
                 ),
                 // VGI506 representative example queries for the schema.

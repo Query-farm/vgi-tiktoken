@@ -55,6 +55,7 @@ impl ScalarFunction for EncodingForModel {
                     "bpe",
                     "tokenizer name",
                 ],
+                "reference",
             ),
             ..Default::default()
         }

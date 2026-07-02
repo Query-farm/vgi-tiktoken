@@ -53,6 +53,7 @@ impl ScalarFunction for Tokenize {
                     "token list",
                     "llm tokens",
                 ],
+                "tokenize",
             ),
             ..Default::default()
         }
@@ -131,6 +132,7 @@ impl ScalarFunction for TokenizeModel {
                     "o200k_base",
                     "llm tokens",
                 ],
+                "tokenize",
             ),
             ..Default::default()
         }

@@ -107,6 +107,7 @@ impl ScalarFunction for ChunkByTokens {
                         "embedding chunks",
                         "cl100k_base",
                     ],
+                    "shape",
                 );
                 tags.push(("vgi.executable_examples".into(), EXECUTABLE_EXAMPLES.into()));
                 tags
@@ -189,6 +190,7 @@ impl ScalarFunction for ChunkByTokensOverlap {
                     "overlap",
                     "cl100k_base",
                 ],
+                "shape",
             ),
             ..Default::default()
         }

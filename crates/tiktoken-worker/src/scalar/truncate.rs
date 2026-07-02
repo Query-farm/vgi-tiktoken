@@ -54,6 +54,7 @@ impl ScalarFunction for TruncateToTokens {
                     "context window",
                     "cl100k_base",
                 ],
+                "shape",
             ),
             ..Default::default()
         }
@@ -134,6 +135,7 @@ impl ScalarFunction for TruncateToTokensModel {
                     "context window",
                     "o200k_base",
                 ],
+                "shape",
             ),
             ..Default::default()
         }

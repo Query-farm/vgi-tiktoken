@@ -63,6 +63,7 @@ impl ScalarFunction for CountTokens {
                     "gpt-3.5",
                     "llm tokens",
                 ],
+                "count",
             ),
             ..Default::default()
         }
@@ -137,6 +138,7 @@ impl ScalarFunction for CountTokensModel {
                     "o200k_base",
                     "llm tokens",
                 ],
+                "count",
             ),
             ..Default::default()
         }
