@@ -35,7 +35,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Set up sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.10
 
       - name: Format check
         run: cargo fmt --all -- --check
@@ -69,7 +69,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Set up sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.10
 
       - name: Build worker (release)
         run: cargo build --release --bin tiktoken-worker
@@ -77,7 +77,6 @@ jobs:
       - name: vgi-lint
         uses: Query-farm/vgi-lint-check@v1
         with:
-          version: "0.37.0"
           location: "${{ github.workspace }}/target/release/tiktoken-worker"
           fail-on: info
 
@@ -123,7 +122,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Set up sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.10
 
       - name: Build worker (release)
         # The `http` transport needs the `vgi-rpc` `http` feature; the workspace
