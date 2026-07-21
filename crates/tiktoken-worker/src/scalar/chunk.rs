@@ -54,12 +54,25 @@ const EXECUTABLE_EXAMPLES: &str = r#"[
   {
     "description": "Split a document into 8-token windows that share 2 overlapping tokens (RAG).",
     "sql": "SELECT tiktoken.main.chunk_by_tokens('A long document to split into overlapping windows for retrieval.', 8, 2) AS chunks"
-  },
-  {
-    "description": "Return the running tiktoken worker version string.",
-    "sql": "SELECT tiktoken.main.tiktoken_version() AS version"
   }
 ]"#;
+
+/// The `vgi.example_queries` payload shared by both `chunk_by_tokens` arity
+/// overloads (see the note on `count_examples_json`): overloads collapse to one
+/// `duckdb_functions()` row whose native examples are the union of both, so the
+/// tag must describe every native SQL to satisfy VGI515.
+fn chunk_examples_json() -> String {
+    crate::meta::example_queries_json(&[
+        (
+            "Split a document into non-overlapping windows of at most 256 tokens (cl100k_base) for embedding.",
+            "SELECT tiktoken.main.chunk_by_tokens('A long document to split before embedding.', 256);",
+        ),
+        (
+            "Split a document into 256-token windows that share 32 overlapping tokens, preserving context across chunks for RAG.",
+            "SELECT tiktoken.main.chunk_by_tokens('A long RAG document to split into overlapping windows.', 256, 32);",
+        ),
+    ])
+}
 
 /// Shared chunk builder over an already-validated `(text, max, overlap)`.
 fn append_chunks(builder: &mut ListBuilder<StringBuilder>, text: &str, max: usize, overlap: usize) {
@@ -92,10 +105,10 @@ impl ScalarFunction for ChunkByTokens {
                 let mut tags = crate::meta::object_tags(
                     "Chunk By Tokens (No Overlap)",
                     "Split text into chunks of at most max_tokens tokens (under cl100k_base) with \
-                     no overlap, returned as a VARCHAR[]. Each chunk decodes to valid text. NULL \
+                     no overlap, returned as a `VARCHAR[]`. Each chunk decodes to valid text. NULL \
                      text -> NULL; empty text or max_tokens <= 0 -> []. Use to window long \
                      documents before embedding for RAG.",
-                    "Split text into non-overlapping token-bounded chunks as VARCHAR[]. \
+                    "Split text into non-overlapping token-bounded chunks as `VARCHAR[]`. \
                      `chunk_by_tokens(text, 256)`.",
                     &[
                         "chunk",
@@ -109,6 +122,7 @@ impl ScalarFunction for ChunkByTokens {
                     ],
                     "shape",
                 );
+                tags.push(("vgi.example_queries".into(), chunk_examples_json()));
                 tags.push(("vgi.executable_examples".into(), EXECUTABLE_EXAMPLES.into()));
                 tags
             },
@@ -171,13 +185,14 @@ impl ScalarFunction for ChunkByTokensOverlap {
                 description: "Split a document into 256-token windows that share 32 overlapping tokens, preserving context across chunks for RAG.".into(),
                 expected_output: None,
             }],
-            tags: crate::meta::object_tags(
+            tags: {
+                let mut tags = crate::meta::object_tags(
                 "Chunk By Tokens With Overlap",
                 "Split text into chunks of at most max_tokens tokens (under cl100k_base) with \
                  `overlap` tokens shared between consecutive chunks (sliding RAG windows), \
-                 returned as a VARCHAR[]. overlap is clamped to max_tokens-1 so the window always \
+                 returned as a `VARCHAR[]`. overlap is clamped to max_tokens-1 so the window always \
                  advances. NULL -> NULL. Use to preserve context across chunk boundaries.",
-                "Split text into overlapping token-bounded chunks as VARCHAR[]. \
+                "Split text into overlapping token-bounded chunks as `VARCHAR[]`. \
                  `chunk_by_tokens(text, 256, 32)`.",
                 &[
                     "chunk",
@@ -191,7 +206,10 @@ impl ScalarFunction for ChunkByTokensOverlap {
                     "cl100k_base",
                 ],
                 "shape",
-            ),
+                );
+                tags.push(("vgi.example_queries".into(), chunk_examples_json()));
+                tags
+            },
             ..Default::default()
         }
     }

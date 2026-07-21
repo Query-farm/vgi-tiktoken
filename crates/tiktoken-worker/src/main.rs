@@ -15,8 +15,10 @@
 //! SELECT truncate_to_tokens('a long passage …', 16); -- first 16 tokens, decoded
 //! SELECT chunk_by_tokens('… RAG document …', 256, 32); -- VARCHAR[] windows
 //! SELECT encoding_for_model('gpt-4o');               -- 'o200k_base'
-//! SELECT tiktoken_version();                         -- worker version
 //! ```
+//!
+//! The worker's own version is surfaced as the catalog's `implementation_version`
+//! (visible via `vgi_catalogs()`), not as a scalar function.
 //!
 //! The pure tokenization engine (wrapping `tiktoken-rs`, which bundles the BPE
 //! encodings — no network) lives in `tiktoken.rs`; the `scalar/` modules are
@@ -30,7 +32,7 @@ mod tiktoken;
 use vgi::catalog::{CatSchema, CatalogModel};
 use vgi::Worker;
 
-/// Worker version string, surfaced by `tiktoken_version()`.
+/// Worker version string, surfaced as the catalog's `implementation_version`.
 pub fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")
 }
@@ -109,8 +111,8 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                  `p50k_base`, `r50k_base`, and `o200k_harmony`. Results are exact and deterministic, \
                  so the same text always yields the same count and the same token-id sequence.\n\n\
                  The worker exposes a small, composable set of scalar SQL functions in the \
-                 `tiktoken.main` schema; list that schema to discover them and their signatures. \
-                 They cover the everyday token-oriented tasks: getting an exact token count for a \
+                 `tiktoken.main` schema, covering the everyday token-oriented tasks: getting an \
+                 exact token count for a \
                  string, returning the raw BPE token ids as an `INTEGER[]`, mapping a model name \
                  (e.g. `'gpt-4o'`) to its encoding name, clipping text to a fixed token budget, and \
                  splitting text into token-bounded, optionally overlapping windows that make ideal \
@@ -142,7 +144,6 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             (
                 "vgi.agent_test_tasks".to_string(),
                 r#"[
-  {"name": "worker_version", "prompt": "Which version of the tiktoken worker is currently attached? Return the single version string in a column named worker_version.", "reference_sql": "SELECT tiktoken.main.tiktoken_version() AS worker_version"},
   {"name": "count_default_encoding", "prompt": "How many GPT-4 / GPT-3.5 (cl100k_base) tokens are in the text 'hello world'? Return the count in a column named token_count.", "reference_sql": "SELECT tiktoken.main.count_tokens('hello world') AS token_count"},
   {"name": "count_for_model", "prompt": "Using the tokenizer for the model 'gpt-4o', how many tokens are in the text 'hello world'? Return the count in a column named token_count.", "reference_sql": "SELECT tiktoken.main.count_tokens('hello world', 'gpt-4o') AS token_count"},
   {"name": "encoding_for_model", "prompt": "Which tiktoken encoding does the model 'gpt-4o' use? Return the encoding name in a column named encoding.", "reference_sql": "SELECT tiktoken.main.encoding_for_model('gpt-4o') AS encoding"},
@@ -154,6 +155,10 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ),
         ],
         source_url: Some("https://github.com/Query-farm/vgi-tiktoken".to_string()),
+        // The running worker build, surfaced by `vgi_catalogs()` — an agent reads
+        // it without spending a query, and it can never drift from the binary.
+        // (This replaces a former `tiktoken_version()` scalar.)
+        implementation_version: Some(version().to_string()),
         schemas: vec![CatSchema {
             name: "main".to_string(),
             comment: Some(
@@ -205,7 +210,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                      and map model names to their tiktoken encodings. Each text function has a \
                      default-encoding form (cl100k_base) and a model-arity form that resolves a \
                      model or encoding name. Unknown models return NULL; NULL text flows through \
-                     to NULL. List the schema to discover the exact functions and their signatures."
+                     to NULL."
                         .to_string(),
                 ),
                 (
@@ -218,20 +223,40 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                      the worker build.\n\nThe default encoding is `cl100k_base` (GPT-4 / GPT-3.5); \
                      pass a model name (e.g. `gpt-4o`) to select another. Encodings are bundled \
                      into the binary, so token counting is exact, deterministic, and needs no \
-                     network access. List the schema to discover the exact functions and their \
-                     signatures."
+                     network access."
                         .to_string(),
                 ),
-                // VGI506 representative example queries for the schema.
+                // VGI506/VGI515: representative example queries for the schema, as
+                // a JSON list of {"description", "sql"} objects so each carries a
+                // human-readable description.
                 (
                     "vgi.example_queries".to_string(),
-                    "SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.');\n\
-                     SELECT tiktoken.main.count_tokens('Summarize this prompt.', 'gpt-4o');\n\
-                     SELECT tiktoken.main.tokenize('tiktoken is great!');\n\
-                     SELECT tiktoken.main.encoding_for_model('gpt-4o');\n\
-                     SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5);\n\
-                     SELECT tiktoken.main.chunk_by_tokens('A long document to split before embedding.', 8);"
-                        .to_string(),
+                    meta::example_queries_json(&[
+                        (
+                            "Count the GPT-4/3.5 (cl100k_base) tokens in a sentence.",
+                            "SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.');",
+                        ),
+                        (
+                            "Count tokens with a specific model's encoding (gpt-4o uses o200k_base).",
+                            "SELECT tiktoken.main.count_tokens('Summarize this prompt.', 'gpt-4o');",
+                        ),
+                        (
+                            "Get the raw BPE token ids of a string under the default encoding.",
+                            "SELECT tiktoken.main.tokenize('tiktoken is great!');",
+                        ),
+                        (
+                            "Look up which tiktoken encoding a model uses.",
+                            "SELECT tiktoken.main.encoding_for_model('gpt-4o');",
+                        ),
+                        (
+                            "Clip text to its first 5 cl100k_base tokens, decoded back to a string.",
+                            "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5);",
+                        ),
+                        (
+                            "Split a document into non-overlapping 8-token chunks for embedding.",
+                            "SELECT tiktoken.main.chunk_by_tokens('A long document to split before embedding.', 8);",
+                        ),
+                    ]),
                 ),
             ],
             views: Vec::new(),

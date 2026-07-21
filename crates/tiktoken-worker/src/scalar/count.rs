@@ -25,6 +25,25 @@ use vgi_rpc::{Result, RpcError};
 use crate::arrow_io::text_str;
 use crate::tiktoken::{self, Encoding};
 
+/// The `vgi.example_queries` payload for `count_tokens`. Both arity overloads
+/// carry the **same** described-example list: the vgi extension exposes overloads
+/// as one `duckdb_functions()` row whose native `examples` column is the union of
+/// every overload's `Meta.examples`, so the winning tag must describe every one
+/// of those SQL strings (VGI515) — an overload-specific tag would leave the other
+/// overload's native example without a description.
+fn count_examples_json() -> String {
+    crate::meta::example_queries_json(&[
+        (
+            "Count the GPT-4/3.5 (cl100k_base) tokens in a sentence.",
+            "SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.');",
+        ),
+        (
+            "Count tokens with the encoding for a specific model (gpt-4o uses o200k_base) to budget a context window.",
+            "SELECT tiktoken.main.count_tokens('Summarize this prompt for GPT-4o.', 'gpt-4o');",
+        ),
+    ])
+}
+
 /// `count_tokens(text)` — token count under the default encoding (cl100k_base).
 pub struct CountTokens;
 
@@ -44,7 +63,8 @@ impl ScalarFunction for CountTokens {
                 description: "Count the GPT-4/3.5 (cl100k_base) tokens in a sentence.".into(),
                 expected_output: None,
             }],
-            tags: crate::meta::object_tags(
+            tags: {
+                let mut tags = crate::meta::object_tags(
                 "Count Tokens (Default Encoding)",
                 "Count the exact number of LLM tokens in text under the default encoding \
                  (cl100k_base, the GPT-4/3.5 tokenizer). Empty text -> 0; NULL -> NULL. Use to \
@@ -64,7 +84,10 @@ impl ScalarFunction for CountTokens {
                     "llm tokens",
                 ],
                 "count",
-            ),
+                );
+                tags.push(("vgi.example_queries".into(), count_examples_json()));
+                tags
+            },
             ..Default::default()
         }
     }
@@ -121,7 +144,8 @@ impl ScalarFunction for CountTokensModel {
                 description: "Count tokens with the encoding for a specific model (gpt-4o uses o200k_base) to budget a context window.".into(),
                 expected_output: None,
             }],
-            tags: crate::meta::object_tags(
+            tags: {
+                let mut tags = crate::meta::object_tags(
                 "Count Tokens For Model",
                 "Count the exact number of LLM tokens in text using the encoding for the given \
                  model name (e.g. 'gpt-4o'). Exact for OpenAI BPE families. Unknown model -> \
@@ -139,7 +163,10 @@ impl ScalarFunction for CountTokensModel {
                     "llm tokens",
                 ],
                 "count",
-            ),
+                );
+                tags.push(("vgi.example_queries".into(), count_examples_json()));
+                tags
+            },
             ..Default::default()
         }
     }

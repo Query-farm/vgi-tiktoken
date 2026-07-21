@@ -10,13 +10,16 @@ mod count;
 mod encoding;
 mod tokenize;
 mod truncate;
-mod version;
 
 use vgi::Worker;
 
 /// Register every scalar function on the worker.
+///
+/// The worker's own version is *not* exposed as a scalar function: it is carried
+/// as the catalog's `implementation_version` (see `main.rs`), which an agent
+/// reads from `vgi_catalogs()` without spending a query and which can never drift
+/// from the running build.
 pub fn register(worker: &mut Worker) {
-    worker.register_scalar(version::TiktokenVersion);
     worker.register_scalar(encoding::EncodingForModel);
 
     // count_tokens(text) and count_tokens(text, model).

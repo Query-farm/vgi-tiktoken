@@ -23,8 +23,10 @@ SELECT tokenize('tiktoken is great!');                    -- [83, 1609, 5963, 37
 SELECT truncate_to_tokens('a long passage …', 16);        -- first 16 tokens, decoded
 SELECT chunk_by_tokens('… RAG document …', 256, 32);      -- VARCHAR[] windows w/ overlap
 SELECT encoding_for_model('gpt-4o');                      -- 'o200k_base'
-SELECT tiktoken_version();                                -- worker version
 ```
+
+> The worker's own version is exposed as the catalog's `implementation_version`
+> (read it from `vgi_catalogs()`), not as a SQL function.
 
 ## No network, exact BPE
 
@@ -55,7 +57,6 @@ Scalars (positional-only; optional arguments are exposed as **arity overloads**)
 | `chunk_by_tokens` | `chunk_by_tokens(text VARCHAR, max_tokens INTEGER) -> VARCHAR[]` | Split into ≤ `max_tokens` chunks (no overlap) |
 | `chunk_by_tokens` | `chunk_by_tokens(text VARCHAR, max_tokens INTEGER, overlap INTEGER) -> VARCHAR[]` | RAG windows with `overlap` shared tokens |
 | `encoding_for_model` | `encoding_for_model(model VARCHAR) -> VARCHAR` | Encoding name (e.g. `'o200k_base'`); **NULL** if unknown |
-| `tiktoken_version` | `tiktoken_version() -> VARCHAR` | Worker version |
 
 ### Encodings supported
 

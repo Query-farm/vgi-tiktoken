@@ -97,5 +97,6 @@ CI (`.github/workflows/ci.yml`) runs fmt/clippy/build/test plus a gated
 
 Scalars: `count_tokens` (INT, 1- or 2-arg), `tokenize` (INT[], 1- or 2-arg),
 `truncate_to_tokens` (VARCHAR, 2- or 3-arg), `chunk_by_tokens` (VARCHAR[], 2- or
-3-arg), `encoding_for_model` (VARCHAR), `tiktoken_version` (VARCHAR). Encodings:
-cl100k_base, o200k_base, p50k_base, r50k_base, o200k_harmony.
+3-arg), `encoding_for_model` (VARCHAR). Encodings: cl100k_base, o200k_base,
+p50k_base, r50k_base, o200k_harmony. The worker version is the catalog's
+`implementation_version` (read via `vgi_catalogs()`), not a scalar function.

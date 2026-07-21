@@ -40,6 +40,43 @@ pub fn keywords_json(keywords: &[&str]) -> String {
     out
 }
 
+/// Render `(description, sql)` pairs as the JSON list of `{"description", "sql"}`
+/// objects that `vgi.example_queries` expects (VGI515 requires every example to
+/// carry a non-empty description; the native `duckdb_functions().examples`
+/// column can only carry SQL, so the human-readable description must ride on
+/// this tag). Each field is JSON-escaped, mirroring [`keywords_json`].
+pub fn example_queries_json(examples: &[(&str, &str)]) -> String {
+    fn push_escaped(out: &mut String, s: &str) {
+        out.push('"');
+        for ch in s.chars() {
+            match ch {
+                '"' => out.push_str("\\\""),
+                '\\' => out.push_str("\\\\"),
+                '\n' => out.push_str("\\n"),
+                '\r' => out.push_str("\\r"),
+                '\t' => out.push_str("\\t"),
+                c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+                c => out.push(c),
+            }
+        }
+        out.push('"');
+    }
+
+    let mut out = String::from("[");
+    for (i, (description, sql)) in examples.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        out.push_str("{\"description\":");
+        push_escaped(&mut out, description);
+        out.push_str(",\"sql\":");
+        push_escaped(&mut out, sql);
+        out.push('}');
+    }
+    out.push(']');
+    out
+}
+
 /// Build the standard per-object discovery/description tags.
 ///
 /// `keywords` is the list of search terms/synonyms for this object; it is

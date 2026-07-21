@@ -16,6 +16,23 @@ use vgi_rpc::{Result, RpcError};
 use crate::arrow_io::{finish_list_int, list_int_builder, list_int_type, text_str};
 use crate::tiktoken::{self, Encoding};
 
+/// The `vgi.example_queries` payload shared by both `tokenize` arity overloads
+/// (see the note on `count_examples_json`): overloads collapse to one
+/// `duckdb_functions()` row whose native examples are the union of both, so the
+/// tag must describe every native SQL to satisfy VGI515.
+fn tokenize_examples_json() -> String {
+    crate::meta::example_queries_json(&[
+        (
+            "Get the cl100k_base BPE token ids for a string as an INTEGER[].",
+            "SELECT tiktoken.main.tokenize('tiktoken is great!');",
+        ),
+        (
+            "Tokenize text using a specific model's encoding (gpt-4o uses o200k_base).",
+            "SELECT tiktoken.main.tokenize('hello world', 'gpt-4o');",
+        ),
+    ])
+}
+
 /// `tokenize(text)` — token ids under the default encoding (cl100k_base).
 pub struct Tokenize;
 
@@ -36,12 +53,13 @@ impl ScalarFunction for Tokenize {
                     .into(),
                 expected_output: None,
             }],
-            tags: crate::meta::object_tags(
+            tags: {
+                let mut tags = crate::meta::object_tags(
                 "Tokenize To Ids (Default Encoding)",
                 "Tokenize text into its BPE token ids under the default encoding (cl100k_base) and \
-                 return them as an INTEGER[]. Empty text -> []; NULL -> NULL. Use to inspect how \
+                 return them as an `INTEGER[]`. Empty text -> []; NULL -> NULL. Use to inspect how \
                  a string is split into tokens.",
-                "Tokenize text to cl100k_base BPE token ids as INTEGER[]. \
+                "Tokenize text to cl100k_base BPE token ids as `INTEGER[]`. \
                  `tokenize('hello world')` -> `[15339, 1917]`.",
                 &[
                     "tokenize",
@@ -54,7 +72,10 @@ impl ScalarFunction for Tokenize {
                     "llm tokens",
                 ],
                 "tokenize",
-            ),
+                );
+                tags.push(("vgi.example_queries".into(), tokenize_examples_json()));
+                tags
+            },
             ..Default::default()
         }
     }
@@ -115,12 +136,13 @@ impl ScalarFunction for TokenizeModel {
                         .into(),
                 expected_output: None,
             }],
-            tags: crate::meta::object_tags(
+            tags: {
+                let mut tags = crate::meta::object_tags(
                 "Tokenize To Ids For Model",
                 "Tokenize text into its BPE token ids using the encoding for the given model name \
-                 (e.g. 'gpt-4o') and return them as an INTEGER[]. Unknown model -> NULL; empty \
+                 (e.g. 'gpt-4o') and return them as an `INTEGER[]`. Unknown model -> NULL; empty \
                  text -> []. Use to inspect how a specific model splits a string into tokens.",
-                "Tokenize text to BPE token ids using a model's encoding as INTEGER[]. \
+                "Tokenize text to BPE token ids using a model's encoding as `INTEGER[]`. \
                  `tokenize('hi', 'gpt-4o')` uses o200k_base.",
                 &[
                     "tokenize",
@@ -133,7 +155,10 @@ impl ScalarFunction for TokenizeModel {
                     "llm tokens",
                 ],
                 "tokenize",
-            ),
+                );
+                tags.push(("vgi.example_queries".into(), tokenize_examples_json()));
+                tags
+            },
             ..Default::default()
         }
     }

@@ -36,7 +36,8 @@ impl ScalarFunction for EncodingForModel {
                     .into(),
                 expected_output: None,
             }],
-            tags: crate::meta::object_tags(
+            tags: {
+                let mut tags = crate::meta::object_tags(
                 "Encoding For Model Name",
                 "Map an LLM model name (e.g. 'gpt-4o', 'gpt-4', 'gpt-3.5-turbo') to the name of \
                  the tiktoken BPE encoding it uses (e.g. 'o200k_base', 'cl100k_base'). Returns \
@@ -56,7 +57,16 @@ impl ScalarFunction for EncodingForModel {
                     "tokenizer name",
                 ],
                 "reference",
-            ),
+                );
+                tags.push((
+                    "vgi.example_queries".into(),
+                    crate::meta::example_queries_json(&[(
+                        "Look up the tiktoken encoding a model uses (gpt-4o -> 'o200k_base').",
+                        "SELECT tiktoken.main.encoding_for_model('gpt-4o');",
+                    )]),
+                ));
+                tags
+            },
             ..Default::default()
         }
     }

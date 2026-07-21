@@ -18,6 +18,23 @@ use vgi_rpc::{Result, RpcError};
 use crate::arrow_io::{int_val, text_str};
 use crate::tiktoken::{self, Encoding};
 
+/// The `vgi.example_queries` payload shared by both `truncate_to_tokens` arity
+/// overloads (see the note on `count_examples_json`): overloads collapse to one
+/// `duckdb_functions()` row whose native examples are the union of both, so the
+/// tag must describe every native SQL to satisfy VGI515.
+fn truncate_examples_json() -> String {
+    crate::meta::example_queries_json(&[
+        (
+            "Keep only the first 5 cl100k_base tokens of the text, decoded back to a string.",
+            "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5);",
+        ),
+        (
+            "Truncate text to a token budget using a specific model's encoding (gpt-4o uses o200k_base).",
+            "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5, 'gpt-4o');",
+        ),
+    ])
+}
+
 /// `truncate_to_tokens(text, n)` — first `n` tokens under the default encoding.
 pub struct TruncateToTokens;
 
@@ -37,10 +54,11 @@ impl ScalarFunction for TruncateToTokens {
                 description: "Keep only the first 5 cl100k_base tokens of the text, decoded back to a string.".into(),
                 expected_output: None,
             }],
-            tags: crate::meta::object_tags(
+            tags: {
+                let mut tags = crate::meta::object_tags(
                 "Truncate To Tokens (Default Encoding)",
                 "Keep only the first n tokens of text under the default encoding (cl100k_base) \
-                 and decode them back to a VARCHAR. n <= 0 -> ''; NULL text or NULL n -> NULL. \
+                 and decode them back to a `VARCHAR`. n <= 0 -> ''; NULL text or NULL n -> NULL. \
                  Use to clip text to a token budget for a prompt or context window.",
                 "Truncate text to its first n cl100k_base tokens, decoded back to text. \
                  `truncate_to_tokens(text, 5)`.",
@@ -55,7 +73,10 @@ impl ScalarFunction for TruncateToTokens {
                     "cl100k_base",
                 ],
                 "shape",
-            ),
+                );
+                tags.push(("vgi.example_queries".into(), truncate_examples_json()));
+                tags
+            },
             ..Default::default()
         }
     }
@@ -118,10 +139,11 @@ impl ScalarFunction for TruncateToTokensModel {
                 description: "Truncate text to a token budget using a specific model's encoding (gpt-4o uses o200k_base).".into(),
                 expected_output: None,
             }],
-            tags: crate::meta::object_tags(
+            tags: {
+                let mut tags = crate::meta::object_tags(
                 "Truncate To Tokens For Model",
                 "Keep only the first n tokens of text using the encoding for the given model name \
-                 (e.g. 'gpt-4o') and decode them back to a VARCHAR. Unknown model -> NULL; n <= 0 \
+                 (e.g. 'gpt-4o') and decode them back to a `VARCHAR`. Unknown model -> NULL; n <= 0 \
                  -> ''. Use to clip text to a specific model's token budget.",
                 "Truncate text to its first n tokens using a model's encoding, decoded back to \
                  text. `truncate_to_tokens(text, 5, 'gpt-4o')`.",
@@ -136,7 +158,10 @@ impl ScalarFunction for TruncateToTokensModel {
                     "o200k_base",
                 ],
                 "shape",
-            ),
+                );
+                tags.push(("vgi.example_queries".into(), truncate_examples_json()));
+                tags
+            },
             ..Default::default()
         }
     }
