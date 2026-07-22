@@ -8,22 +8,37 @@ authors.workspace = true
 repository.workspace = true
 description = "VGI worker bringing exact LLM token counting and token-aware text chunking to DuckDB over Apache Arrow, powered by tiktoken-rs"
 
+[lib]
+name = "tiktoken_worker"
+path = "src/lib.rs"
+
 [[bin]]
 name = "tiktoken-worker"
 path = "src/main.rs"
 
 [dependencies]
-vgi.workspace = true
-vgi-rpc.workspace = true
 arrow-array.workspace = true
 arrow-buffer.workspace = true
 arrow-schema.workspace = true
 log = "0.4"
-env_logger = "0.11"
 # tiktoken-rs BUNDLES the OpenAI BPE encodings (cl100k_base, o200k_base,
 # p50k_base, r50k_base, …) at compile time — no network download at runtime.
 # PINNED to =0.12.0: it uses `let`-chains in `&&` position (stable only in
-# Rust 1.88), which is fine now that the workspace MSRV is `rust-version = 1.90`.
+# Rust 1.88), which is fine now that the workspace MSRV is `rust-version = 1.97`.
 tiktoken-rs = "=0.12.0"
 # Lazily build & cache each encoder for the process lifetime.
 once_cell = "1"
+
+# --- Native ---------------------------------------------------------------
+# The SDK's real default features — the existing native product, unchanged.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+vgi = { workspace = true, features = ["sqlite", "transport-http"] }
+vgi-rpc = { workspace = true, features = ["http"] }
+env_logger = "0.11"
+
+# --- wasm32 ---------------------------------------------------------------
+# No sqlite (C) and no HTTP transport (tokio/mio/axum); the bincode stream codec
+# is what the SAB byte-channel transport needs. No env_logger.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+vgi = { workspace = true }
+vgi-rpc = { workspace = true, features = ["stream-codec"] }
