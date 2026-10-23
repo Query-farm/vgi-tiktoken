@@ -1,0 +1,22 @@
+# Private graders for the agent-suitability suite (`vgi-lint simulate`).
+#
+# The prompts are published in the catalog's vgi.agent_test_tasks tag
+# (crates/tiktoken-worker/src/lib.rs); the answers live here, keyed by task name,
+# so the agent being graded never sees them. vgi-lint discovers this file in
+# the directory it runs from.
+# Every task is deterministic and self-contained (tiktoken is exact and bundles
+# its encodings), so none needs external fixtures.
+
+tasks:
+  - name: "count_default_encoding"
+    reference_sql: "SELECT tiktoken.main.count_tokens('hello world') AS token_count"
+  - name: "count_for_model"
+    reference_sql: "SELECT tiktoken.main.count_tokens('hello world', 'gpt-4o') AS token_count"
+  - name: "encoding_for_model"
+    reference_sql: "SELECT tiktoken.main.encoding_for_model('gpt-4o') AS encoding"
+  - name: "tokenize_ids"
+    reference_sql: "SELECT tiktoken.main.tokenize('hello world') AS token_ids"
+  - name: "truncate_to_budget"
+    reference_sql: "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5) AS clipped"
+  - name: "chunk_count"
+    reference_sql: "SELECT len(tiktoken.main.chunk_by_tokens('The quick brown fox jumps over the lazy dog.', 5)) AS chunk_count"

@@ -128,18 +128,20 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ),
             // VGI152: an analyst-task suite so `vgi-lint simulate` can measure how
             // well an agent actually drives this worker. Each task is a natural
-            // prompt plus the canonical `reference_sql` that answers it. Every task
-            // is deterministic and self-contained (tiktoken is exact and bundles
-            // its encodings), so none needs external fixtures.
+            // prompt; only name/prompt ride this tag (VGI416) and the canonical
+            // `reference_sql` graders live in vgi-agent-tests.yaml at the repo
+            // root, keyed by task name. Every task is deterministic and
+            // self-contained (tiktoken is exact and bundles its encodings), so none
+            // needs external fixtures.
             (
                 "vgi.agent_test_tasks".to_string(),
                 r#"[
-  {"name": "count_default_encoding", "prompt": "How many GPT-4 / GPT-3.5 (cl100k_base) tokens are in the text 'hello world'? Return the count in a column named token_count.", "reference_sql": "SELECT tiktoken.main.count_tokens('hello world') AS token_count"},
-  {"name": "count_for_model", "prompt": "Using the tokenizer for the model 'gpt-4o', how many tokens are in the text 'hello world'? Return the count in a column named token_count.", "reference_sql": "SELECT tiktoken.main.count_tokens('hello world', 'gpt-4o') AS token_count"},
-  {"name": "encoding_for_model", "prompt": "Which tiktoken encoding does the model 'gpt-4o' use? Return the encoding name in a column named encoding.", "reference_sql": "SELECT tiktoken.main.encoding_for_model('gpt-4o') AS encoding"},
-  {"name": "tokenize_ids", "prompt": "Return the raw cl100k_base BPE token ids for the text 'hello world' as an integer array in a column named token_ids.", "reference_sql": "SELECT tiktoken.main.tokenize('hello world') AS token_ids"},
-  {"name": "truncate_to_budget", "prompt": "Truncate the text 'The quick brown fox jumps over the lazy dog.' to its first 5 cl100k_base tokens and return the resulting string in a column named clipped.", "reference_sql": "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5) AS clipped"},
-  {"name": "chunk_count", "prompt": "Split the text 'The quick brown fox jumps over the lazy dog.' into chunks of at most 5 tokens (cl100k_base) and return how many chunks result, in a column named chunk_count.", "reference_sql": "SELECT len(tiktoken.main.chunk_by_tokens('The quick brown fox jumps over the lazy dog.', 5)) AS chunk_count"}
+  {"name": "count_default_encoding", "prompt": "How many GPT-4 / GPT-3.5 (cl100k_base) tokens are in the text 'hello world'? Return the count in a column named token_count."},
+  {"name": "count_for_model", "prompt": "Using the tokenizer for the model 'gpt-4o', how many tokens are in the text 'hello world'? Return the count in a column named token_count."},
+  {"name": "encoding_for_model", "prompt": "Which tiktoken encoding does the model 'gpt-4o' use? Return the encoding name in a column named encoding."},
+  {"name": "tokenize_ids", "prompt": "Return the raw cl100k_base BPE token ids for the text 'hello world' as an integer array in a column named token_ids."},
+  {"name": "truncate_to_budget", "prompt": "Truncate the text 'The quick brown fox jumps over the lazy dog.' to its first 5 cl100k_base tokens and return the resulting string in a column named clipped."},
+  {"name": "chunk_count", "prompt": "Split the text 'The quick brown fox jumps over the lazy dog.' into chunks of at most 5 tokens (cl100k_base) and return how many chunks result, in a column named chunk_count."}
 ]"#
                 .to_string(),
             ),
@@ -151,6 +153,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
         implementation_version: Some(version().to_string()),
         schemas: vec![CatSchema {
             name: "main".to_string(),
+            path: Vec::new(),
             comment: Some(
                 "LLM token counting and token-aware text chunking functions.".to_string(),
             ),

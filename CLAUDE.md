@@ -18,7 +18,7 @@ lifetime via `once_cell`.
 ## Layout
 
 ```
-Cargo.toml                          workspace; pins vgi 0.18 (→ vgi-rpc 0.11, arrow 59)
+Cargo.toml                          workspace; pins vgi 0.46 (→ vgi-rpc 0.32, arrow 60)
 crates/tiktoken-worker/
   src/main.rs                       Worker::new(); registers scalars
   src/lib.rs                        lib target re-exporting `tiktoken` for integration tests
@@ -35,9 +35,9 @@ marshalling in `arrow_io.rs` + `scalar/*.rs` (thin, harness-tested).
 
 ## Sharp edges
 
-1. **`tiktoken-rs` is PINNED to `=0.12.0`.** 0.12 uses `let`-chains in `&&`
+1. **`tiktoken-rs` is PINNED to `=0.12.1`.** 0.12 uses `let`-chains in `&&`
    position, which are stable only in Rust **1.88**; the workspace MSRV is now
-   **1.90** (`rust-version = "1.90"`), so 0.12 builds. (0.11 was required while
+   **1.97** (`rust-version = "1.97"`, required by vgi 0.46), so 0.12 builds. (0.11 was required while
    the MSRV was 1.86; keep the exact pin so a future 0.13 with a higher MSRV or
    an API break cannot slip in unnoticed.) Note `Tokenizer` lives at
    `tiktoken_rs::tokenizer::Tokenizer` (not re-exported at the crate root) and
