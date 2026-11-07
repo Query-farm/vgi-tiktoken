@@ -14,7 +14,7 @@ A [VGI](https://query.farm) worker that brings **exact LLM token counting** and
 
 ```sql
 LOAD vgi;
-ATTACH 'tiktoken' (TYPE vgi, LOCATION './target/release/tiktoken-worker');
+ATTACH 'tiktoken' (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-tiktoken@v0.2.0');
 SET search_path = 'tiktoken.main';
 
 SELECT count_tokens('hello world');                      -- 2   (cl100k_base default)
@@ -27,6 +27,39 @@ SELECT encoding_for_model('gpt-4o');                      -- 'o200k_base'
 
 > The worker's own version is exposed as the catalog's `implementation_version`
 > (read it from `vgi_catalogs()`), not as a SQL function.
+
+## Quick start
+
+Every [GitHub release](https://github.com/Query-farm/vgi-tiktoken/releases) ships a prebuilt worker binary. The `vgi` extension downloads the one for your platform, checks its SHA-256 and caches it, so there is nothing to install besides DuckDB:
+
+```sql
+INSTALL vgi FROM community;
+LOAD vgi;
+
+ATTACH 'tiktoken' AS tiktoken (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-tiktoken@v0.2.0');
+
+-- Count the GPT-4/3.5 (cl100k_base) tokens in a sentence.
+SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.');
+
+-- Count tokens with a specific model's encoding (gpt-4o uses o200k_base).
+SELECT tiktoken.main.count_tokens('Summarize this prompt.', 'gpt-4o');
+```
+
+Prebuilt binaries cover macOS (Apple silicon), Linux (x86-64 and arm64). `github-auto://` needs an explicit release tag; change `@v0.2.0` to move to a newer release.
+
+### Other ways to run it
+
+- **Docker** (the image bundles the worker; needs a container runtime):
+
+  ```sql
+  ATTACH 'tiktoken' AS tiktoken (TYPE vgi, LOCATION 'docker://ghcr.io/query-farm/vgi-tiktoken:0.2.0');
+  ```
+
+- **Manual download.** Download the archive for your platform from the [releases page](https://github.com/Query-farm/vgi-tiktoken/releases), verify it against its `.sha256` file (a cosign `.cosign.bundle` is published alongside), unpack it, and set `LOCATION` to the path of the extracted worker executable.
+
+### Build from source
+
+To build the worker yourself, see [Development](#development).
 
 ## No network, exact BPE
 
