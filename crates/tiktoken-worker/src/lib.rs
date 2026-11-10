@@ -39,9 +39,11 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 .to_string(),
         ),
         tags: vec![
+            ("vgi.title".to_string(), "Tiktoken Tokenizer".to_string()),
             (
-                "vgi.title".to_string(),
-                "Tiktoken — LLM Token Counting & Chunking".to_string(),
+                "vgi.subtitle".to_string(),
+                "Count, tokenize, truncate and chunk text using exact OpenAI BPE token counts."
+                    .to_string(),
             ),
             (
                 "vgi.keywords".to_string(),
@@ -158,7 +160,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 "LLM token counting and token-aware text chunking functions.".to_string(),
             ),
             tags: vec![
-                ("vgi.title".to_string(), "Tiktoken — main".to_string()),
+                ("vgi.title".to_string(), "Token Functions".to_string()),
                 (
                     "vgi.keywords".to_string(),
                     meta::keywords_json(&[
