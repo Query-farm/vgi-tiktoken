@@ -18,7 +18,7 @@ lifetime via `once_cell`.
 ## Layout
 
 ```
-Cargo.toml                          workspace; pins vgi 0.50.0 (→ vgi-rpc 0.32.3, arrow 59; protocol vgi.v3 / 3.2, haybarn 2.0)
+Cargo.toml                          workspace; pins vgi 0.51.0 (→ vgi-rpc 0.32.4, arrow 59; protocol vgi.v3 / 3.3, haybarn 2.0)
 crates/tiktoken-worker/
   src/main.rs                       Worker::new(); registers scalars
   src/lib.rs                        lib target re-exporting `tiktoken` for integration tests
