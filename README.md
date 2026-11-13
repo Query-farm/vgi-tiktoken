@@ -14,7 +14,7 @@ A [VGI](https://query.farm) worker that brings **exact LLM token counting** and
 
 ```sql
 LOAD vgi;
-ATTACH 'tiktoken' (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-tiktoken@v0.4.0');
+ATTACH 'tiktoken' (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-tiktoken@v0.4.1');
 SET search_path = 'tiktoken.main';
 
 SELECT count_tokens('hello world');                      -- 2   (cl100k_base default)
@@ -36,7 +36,7 @@ Every [GitHub release](https://github.com/Query-farm/vgi-tiktoken/releases) ship
 INSTALL vgi FROM community;
 LOAD vgi;
 
-ATTACH 'tiktoken' AS tiktoken (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-tiktoken@v0.4.0');
+ATTACH 'tiktoken' AS tiktoken (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-tiktoken@v0.4.1');
 
 -- Count the GPT-4/3.5 (cl100k_base) tokens in a sentence.
 SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.');
@@ -45,14 +45,14 @@ SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.'
 SELECT tiktoken.main.count_tokens('Summarize this prompt.', 'gpt-4o');
 ```
 
-Prebuilt binaries cover macOS (Apple silicon), Linux (x86-64 and arm64). `github-auto://` needs an explicit release tag; change `@v0.4.0` to move to a newer release.
+Prebuilt binaries cover macOS (Apple silicon), Linux (x86-64 and arm64). `github-auto://` needs an explicit release tag; change `@v0.4.1` to move to a newer release.
 
 ### Other ways to run it
 
 - **Docker** (the image bundles the worker; needs a container runtime):
 
   ```sql
-  ATTACH 'tiktoken' AS tiktoken (TYPE vgi, LOCATION 'docker://ghcr.io/query-farm/vgi-tiktoken:0.4.0');
+  ATTACH 'tiktoken' AS tiktoken (TYPE vgi, LOCATION 'docker://ghcr.io/query-farm/vgi-tiktoken:0.4.1');
   ```
 
 - **Manual download.** Download the archive for your platform from the [releases page](https://github.com/Query-farm/vgi-tiktoken/releases), verify it against its `.sha256` file (a cosign `.cosign.bundle` is published alongside), unpack it, and set `LOCATION` to the path of the extracted worker executable.
