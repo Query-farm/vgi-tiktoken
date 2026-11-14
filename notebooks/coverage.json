@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "catalogs": {
+    "released": {
+      "path": "coverage/catalog-release.json",
+      "sha256": "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520",
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-14T18:07:11.836701+00:00",
+        "catalog_sha256": "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520",
+        "notes": "Complete real v0.4.1 github-auto runtime exports include nine scalar overloads, five logical functions, zero tables and views. All are local read-only tokenization operations; no authentication or write APIs are omitted."
+      }
+    },
+    "current": {
+      "path": "coverage/catalog-current.json",
+      "sha256": "229a08027e58801914b390b86aff90e20ae7c1043f2da83ff5e49db8c7604480",
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-14T18:07:11.836701+00:00",
+        "catalog_sha256": "229a08027e58801914b390b86aff90e20ae7c1043f2da83ff5e49db8c7604480",
+        "notes": "Complete public registration plus the retained release-to-current diff at public main fe84c9fe390dd08ee78d578db1f2506492573d7d establishes the same five functions and nine signatures. All changed worker lines concern example/catalog metadata; the tokenizer engine, adapters, signatures and dependency lock are unchanged. Current mappings are reviewed interface compatibility, not a claim that the notebooks ran current-main code."
+      }
+    }
+  },
+  "notebooks": [
+    {
+      "path": "01_characters_bytes_and_tokens.ipynb",
+      "sha256": "03ebcbdf95008398875edc3927eb58623b191ba4ec15b4db3576ceb0db558646",
+      "execution": {
+        "path": "coverage/run-01.json",
+        "sha256": "8f0d927d8f8746c6398ee8c6741bf31863e542bc8c20070a7f6bb5458fa93754"
+      }
+    },
+    {
+      "path": "02_overlap_repeats_tokens_and_boundaries_matter.ipynb",
+      "sha256": "3f141cd322b1e4cfe1b92912432508fc80c975e27b14322ef608e41a03b3b14a",
+      "execution": {
+        "path": "coverage/run-02.json",
+        "sha256": "5d505bccc89dea03873237e6e0d8662516a5f3ec41f3ae1b0818df62742e323f"
+      }
+    }
+  ],
+  "examples": [
+    {
+      "object": {
+        "schema": "main",
+        "name": "count_tokens"
+      },
+      "notebook": "01_characters_bytes_and_tokens.ipynb",
+      "sql": [
+        {
+          "cell": "0a0c6a51",
+          "reference": "tokens.main.count_tokens"
+        }
+      ],
+      "narrative_cells": [
+        "6734033e",
+        "cb65b22f",
+        "7ab31f3f"
+      ],
+      "result_cells": [
+        "ddecc7f0",
+        "bf482908",
+        "75c7b5de"
+      ],
+      "interpretation_cells": [
+        "bf482908",
+        "75c7b5de"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-14T18:07:11.836701+00:00",
+        "notebook_sha256": "03ebcbdf95008398875edc3927eb58623b191ba4ec15b4db3576ceb0db558646",
+        "catalog_sha256": [
+          "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520",
+          "229a08027e58801914b390b86aff90e20ae7c1043f2da83ff5e49db8c7604480"
+        ],
+        "purpose": "Compare exact ordinary-text counts for the same eleven strings under two encodings; distinguish code points, bytes, empty input and unknown metadata.",
+        "finding": "All22 sample/encoding counts match token-ID lengths. o200k has fewer tokens on four strings and equal counts on seven; this is a fixture comparison rather than a language ranking. Empty input returns0 while missing text and unknown encoding remainNULL. The selected-encoding experiment changes ratios without changing the input population or full comparison."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "tokenize"
+      },
+      "notebook": "01_characters_bytes_and_tokens.ipynb",
+      "sql": [
+        {
+          "cell": "4295ada5",
+          "reference": "tokens.main.tokenize"
+        }
+      ],
+      "narrative_cells": [
+        "1bac25f9"
+      ],
+      "result_cells": [
+        "4295ada5"
+      ],
+      "interpretation_cells": [
+        "1bac25f9"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-14T18:07:11.836701+00:00",
+        "notebook_sha256": "03ebcbdf95008398875edc3927eb58623b191ba4ec15b4db3576ceb0db558646",
+        "catalog_sha256": [
+          "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520",
+          "229a08027e58801914b390b86aff90e20ae7c1043f2da83ff5e49db8c7604480"
+        ],
+        "purpose": "Determine whether equal token counts make token IDs interchangeable across vocabularies.",
+        "finding": "hello world has two tokens in both encodings, but cl100k IDs15339/1917 differ from o200k24912/2375. The encoding belongs with stored IDs; numeric equality or count equality alone cannot identify text across vocabularies."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "encoding_for_model"
+      },
+      "notebook": "01_characters_bytes_and_tokens.ipynb",
+      "sql": [
+        {
+          "cell": "model-mapping",
+          "reference": "tokens.main.encoding_for_model"
+        }
+      ],
+      "narrative_cells": [
+        "mapping-story"
+      ],
+      "result_cells": [
+        "model-mapping"
+      ],
+      "interpretation_cells": [
+        "mapping-interpretation"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-14T18:07:11.836701+00:00",
+        "notebook_sha256": "03ebcbdf95008398875edc3927eb58623b191ba4ec15b4db3576ceb0db558646",
+        "catalog_sha256": [
+          "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520",
+          "229a08027e58801914b390b86aff90e20ae7c1043f2da83ff5e49db8c7604480"
+        ],
+        "purpose": "Resolve stored model labels before measuring one fixed text, preserving unsupported labels.",
+        "finding": "The pinned worker maps gpt-4 tocl100k and gpt-4o too200k; the same Japanese input counts11versus7. unknown-model remainsNULL with no token estimate. Discovery drives the downstream count and is explicitly the release mapping, not current service behavior."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "truncate_to_tokens"
+      },
+      "notebook": "01_characters_bytes_and_tokens.ipynb",
+      "sql": [
+        {
+          "cell": "d5dd3afc",
+          "reference": "tokens.main.truncate_to_tokens"
+        }
+      ],
+      "narrative_cells": [
+        "1f955834"
+      ],
+      "result_cells": [
+        "e79418ed"
+      ],
+      "interpretation_cells": [
+        "e79418ed"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-14T18:07:11.836701+00:00",
+        "notebook_sha256": "03ebcbdf95008398875edc3927eb58623b191ba4ec15b4db3576ceb0db558646",
+        "catalog_sha256": [
+          "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520",
+          "229a08027e58801914b390b86aff90e20ae7c1043f2da83ff5e49db8c7604480"
+        ],
+        "purpose": "Inspect the text produced when a one-token budget intersects a Unicode character.",
+        "finding": "The ASCII control keeps hello, while the three-token globe emoji yields a replacement character after a one-token cut. One of two controls is lossy, so a valid decoded string is not a lossless prefix of the original bytes. This boundary control remainscl100k in the encoding experiment."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "chunk_by_tokens"
+      },
+      "notebook": "02_overlap_repeats_tokens_and_boundaries_matter.ipynb",
+      "sql": [
+        {
+          "cell": "make-windows",
+          "reference": "tokens.main.chunk_by_tokens"
+        },
+        {
+          "cell": "unicode-control",
+          "reference": "tokens.main.chunk_by_tokens"
+        }
+      ],
+      "narrative_cells": [
+        "input-story",
+        "recount-story",
+        "reconcile-story",
+        "unicode-story"
+      ],
+      "result_cells": [
+        "make-windows",
+        "window-chart",
+        "verify",
+        "unicode-result"
+      ],
+      "interpretation_cells": [
+        "window-chart",
+        "verify",
+        "unicode-result",
+        "experiment"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-14T18:07:11.836701+00:00",
+        "notebook_sha256": "3f141cd322b1e4cfe1b92912432508fc80c975e27b14322ef608e41a03b3b14a",
+        "catalog_sha256": [
+          "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520",
+          "229a08027e58801914b390b86aff90e20ae7c1043f2da83ff5e49db8c7604480"
+        ],
+        "purpose": "Measure repeated token positions and test whether decoded windows preserve the source token stream.",
+        "finding": "With budget8 and overlap2, the16-token ASCII source produces3windows totaling20tokens; each returnedID slice matches the original and removing overlap reconstructs all16IDs. Zerooverlap gives2windows totaling16tokens. The globe control yieldsthree replacement-character pieces, each individually token5809; concatenation retokenizes to one58432 instead of original9468/234/235. Equal sums of individualwindow counts do not establish lossless reconstruction."
+      }
+    }
+  ]
+}

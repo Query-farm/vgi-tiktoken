@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "repository": "Query-farm/vgi-tiktoken",
+  "captured_at": "2026-11-14T18:01:54.724831+00:00",
+  "default_schema": "main",
+  "scope": "all_public_functions_and_tables",
+  "complete": true,
+  "objects": [
+    {
+      "schema": "main",
+      "name": "chunk_by_tokens",
+      "kind": "function",
+      "signatures": [
+        "chunk_by_tokens(VARCHAR, INTEGER) -> VARCHAR[]",
+        "chunk_by_tokens(VARCHAR, INTEGER, INTEGER) -> VARCHAR[]"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "count_tokens",
+      "kind": "function",
+      "signatures": [
+        "count_tokens(VARCHAR) -> INTEGER",
+        "count_tokens(VARCHAR, VARCHAR) -> INTEGER"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "encoding_for_model",
+      "kind": "function",
+      "signatures": [
+        "encoding_for_model(VARCHAR) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "tokenize",
+      "kind": "function",
+      "signatures": [
+        "tokenize(VARCHAR) -> INTEGER[]",
+        "tokenize(VARCHAR, VARCHAR) -> INTEGER[]"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "truncate_to_tokens",
+      "kind": "function",
+      "signatures": [
+        "truncate_to_tokens(VARCHAR, INTEGER) -> VARCHAR",
+        "truncate_to_tokens(VARCHAR, INTEGER, VARCHAR) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    }
+  ],
+  "revision": "v0.4.1",
+  "evidence": [
+    {
+      "path": "coverage/functions.json",
+      "sha256": "9f296144ddc3c61c4892ec9d373c4f885ae34f0c47709606d714dd62afde0d72",
+      "description": "Complete released runtime catalog export"
+    },
+    {
+      "path": "coverage/tables.json",
+      "sha256": "56d0dd30cda23aa089961b0c104f90db64261c119517a4026870f613e1001990",
+      "description": "Complete released runtime catalog export"
+    },
+    {
+      "path": "coverage/views.json",
+      "sha256": "60d2f5f5b8269cf06c6e5ee3e5a8a4baa39a7b9fd353855bab74ef65b9fea650",
+      "description": "Complete released runtime catalog export"
+    },
+    {
+      "path": "coverage/arguments.json",
+      "sha256": "cfd581d627473c4d22d239b57852f8485c211e90de761ad57a6e57100a38320e",
+      "description": "Complete released runtime catalog export"
+    }
+  ],
+  "source_commit": "ca6cab244056b5ba8d63e08a080cc1f8532a25ff",
+  "launch": "github-auto://Query-farm/vgi-tiktoken@v0.4.1"
+}

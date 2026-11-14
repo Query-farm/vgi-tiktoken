@@ -1,93 +1,44 @@
-# Token-counting notebooks
+# Token counts and overlapping windows
 
-[01 · One character budget is not a token budget](01_characters_bytes_and_tokens.ipynb)
-compares Unicode code points, UTF-8 bytes and exact ordinary-text BPE token
-counts for eleven fixed strings. Visible SQL calls the real released worker,
-checks token-list lengths and NULL behavior, and contrasts two encodings. Two
-embedded charts show the counts and selected encoding's ratios. A final boundary
-control demonstrates why a one-token cut can change Unicode text.
+Two executed SQL narratives use the native [v0.4.1 worker release](https://github.com/Query-farm/vgi-tiktoken/releases/tag/v0.4.1):
 
-## Run from this directory
+1. [Characters, bytes and tokens](01_characters_bytes_and_tokens.ipynb) compares eleven original strings under two encodings, resolves stored model labels, inspects token IDs and demonstrates a lossy truncation boundary.
+2. [Overlap repeats tokens](02_overlap_repeats_tokens_and_boundaries_matter.ipynb) reconciles returned windows against the original token IDs, measures repeated context and shows why decoded chunks cannot always reconstruct Unicode text.
 
-Install [uv](https://docs.astral.sh/uv/), then:
-
-```sh
-cd notebooks
-uv sync --locked
-uv run --locked python execute.py
-```
-
-In a notebook editor select this directory's `.venv/bin/python` kernel and run
-all cells. The complete notebook directory also works outside the worker checkout.
-Python 3.13–3.14 is supported; `uv` can provision the interpreter. No Rust compiler,
-local worker build, API key or root virtual environment is required.
-
-The notebook displays its literal connection:
+Each notebook has an **Open in Colab** button. Open a fresh runtime and run all cells; only the shared base package is installed. No repository checkout, Rust compiler or API key is required. The worker connection remains visible:
 
 ```sql
-INSTALL vgi FROM community;
-LOAD vgi;
 ATTACH 'tokens' (TYPE vgi,
   LOCATION 'github-auto://Query-farm/vgi-tiktoken@v0.4.1');
 ```
 
-VGI selects the native platform archive, verifies its SHA256 sidecar and caches
-it. The release supplies macOS arm64 and Linux amd64/arm64 assets. Initial
-installation requires network access; the worker bundles its encoding
-vocabularies and tokenizes local text. Haybarn 2.0.0rc11 and the notebook packages
-are locked here. To adopt another release, change the visible tag and rerun both
-the default and experiment before relying on saved results.
+Initial setup downloads the platform release and checksum-verified plotting companion. Tokenization then uses the worker's bundled vocabularies and local text. GitHub displays the saved SQL, results and SVG charts. It does not honor Jupyter cell-folding metadata, so setup is kept short; compatible notebook editors may collapse auxiliary cells.
 
-Parameters, connection SQL and analytical SQL stay expanded. Imports, plotting,
-prose-generation source and cleanup are folded, with useful results visible.
-
-## One-parameter experiment
+## Run locally
 
 ```sh
-uv run --locked python execute.py --parameters '{"ENCODING":"o200k_base"}' \
-  --output-dir validation/o200k
+cd notebooks
+uv sync --locked
+uv run --locked vgi-notebooks --timeout 300
 ```
 
-Accepted values are `cl100k_base` (default) and `o200k_base` (experiment). Both
-encodings appear in the fixed reference comparison. The parameter selects the
-bar outline, detailed table and ratios. The source text, byte/code-point lengths,
-full reference comparison and explicit cl100k_base boundary control stay fixed.
-Reset to `cl100k_base` after comparing results.
+The local environment includes the shared runner extra. Colab installs the base package, preserving compatible preloaded pandas, Matplotlib and kernel packages. Presentation, execution and the fleet standard are maintained in [vgi-example-notebooks](https://github.com/Query-farm/vgi-example-notebooks); this repo keeps its narratives, chart companion and auditable coverage evidence.
 
-The runner uses fresh kernels and saves only successful executions. Parameter
-overrides require a separate destination; unknown parameter names and overwriting
-the source directory are rejected. Copies include assets, helpers, this guide and
-the locked environment. Extracted charts, logs and experiments under `validation/`
-are ignored; the main notebook retains successful outputs and embedded charts.
+## Change one parameter
 
-## Provenance and limits
+```sh
+uv run --locked vgi-notebooks 01_characters_bytes_and_tokens.ipynb \
+  --parameters '{"ENCODING":"o200k_base"}' --output-dir artifacts/o200k
+uv run --locked vgi-notebooks 02_overlap_repeats_tokens_and_boundaries_matter.ipynb \
+  --parameters '{"OVERLAP_TOKENS":0}' --output-dir artifacts/zero-overlap
+```
 
-All eleven strings are original teaching examples embedded in SQL: short
-sentences, JSON, an identifier, digits, indentation and two accent representations.
-They are neither production prompts nor a representative multilingual benchmark.
-No API is called, and no account data or credentials are stored.
+The first experiment changes the selected encoding's ratios and bar outline while retaining the same strings and two-encoding comparison. The second changes three overlapping windows totaling twenty tokens into two disjoint windows totaling sixteen. The explicit cl100k_base Unicode controls stay fixed.
 
-`length` counts Unicode code points, not visible grapheme clusters. UTF-8 bytes
-are measured with `octet_length(encode(text))`. No normalization is performed;
-precomposed and combining accents remain distinct byte sequences. Empty strings
-produce zero tokens, while missing text or unknown encoding names produce NULL.
+## Scope and evidence
 
-The released worker uses ordinary-text BPE encoding. Canonical encoding names are
-passed explicitly rather than relying on model aliases. Counts describe these
-strings only, excluding chat serialization, tool definitions, images and other
-application overhead. They do not establish API usage, pricing, model quality or
-counts for models with different tokenizers. Token IDs belong to their encoding.
+All inputs are original teaching strings embedded in visible SQL. They are not a language benchmark, real prompts or complete API usage estimates. No model or embedding service is called. Code points, UTF-8 bytes, individual-window token counts and concatenated-text counts measure different things. Model names resolve according to the pinned worker's bundled mapping.
 
-The v0.4.1 truncation and chunking implementations decode byte fragments with
-lossy UTF-8 conversion. A cut inside a character can yield the replacement
-character U+FFFD. The notebook demonstrates this with a cl100k_base emoji boundary;
-it does not promise that concatenating decoded chunks reconstructs arbitrary
-Unicode input. The selected comparison encoding does not alter this explicit
-boundary control.
+The released worker uses lossy UTF-8 decoding for truncation and chunking. The examples preserve original IDs and inspect replacement characters; they do not promise lossless reconstruction of arbitrary Unicode input. Chunking uses cl100k_base and has no encoding argument.
 
-The official Strata Sun and VGI media-kit assets are unchanged. Linked Strata Sun
-branding appears at both the start and final end of the notebook.
-
-References: [worker documentation](https://github.com/Query-farm/vgi-tiktoken),
-[pinned release](https://github.com/Query-farm/vgi-tiktoken/releases/tag/v0.4.1),
-[tokenization implementation](https://github.com/Query-farm/vgi-tiktoken/blob/v0.4.1/crates/tiktoken-worker/src/tiktoken.rs).
+[coverage.json](coverage.json) links the executed examples to all five logical public functions (nine overloads), with complete function/table/view exports and source evidence under [coverage](coverage/). Current-main mappings are reviewed for interface compatibility; notebook runtime evidence is explicitly the released worker. See the [shared coverage rules](https://github.com/Query-farm/vgi-example-notebooks/blob/main/docs/coverage.md).

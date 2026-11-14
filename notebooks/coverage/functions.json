@@ -1,0 +1,370 @@
+{
+  "query": "SELECT * FROM duckdb_functions() WHERE database_name='tokens'",
+  "columns": [
+    "database_name",
+    "database_oid",
+    "schema_name",
+    "function_name",
+    "alias_of",
+    "function_type",
+    "description",
+    "comment",
+    "tags",
+    "return_type",
+    "parameters",
+    "parameter_types",
+    "varargs",
+    "macro_definition",
+    "has_side_effects",
+    "internal",
+    "extension_name",
+    "function_oid",
+    "examples",
+    "stability",
+    "categories"
+  ],
+  "rows": [
+    [
+      "tokens",
+      "22592",
+      "main",
+      "chunk_by_tokens",
+      null,
+      "scalar",
+      "Split text into chunks of at most max_tokens tokens (cl100k_base), with no overlap, as VARCHAR[]. Each chunk decodes to valid text. NULL -> NULL",
+      null,
+      {
+        "vgi.category": "shape",
+        "vgi.doc_llm": "Split text into chunks of at most max_tokens tokens (under cl100k_base) with `overlap` tokens shared between consecutive chunks (sliding RAG windows), returned as a `VARCHAR[]`. overlap is clamped to max_tokens-1 so the window always advances. NULL -> NULL. Use to preserve context across chunk boundaries.",
+        "vgi.doc_md": "Split text into overlapping token-bounded chunks as `VARCHAR[]`. `chunk_by_tokens(text, 256, 32)`.",
+        "vgi.example_queries": "[{\"description\":\"Split a document into non-overlapping windows of at most 256 tokens (cl100k_base) for embedding.\",\"sql\":\"SELECT tiktoken.main.chunk_by_tokens('A long document to split before embedding.', 256);\"},{\"description\":\"Split a document into 256-token windows that share 32 overlapping tokens, preserving context across chunks for RAG.\",\"sql\":\"SELECT tiktoken.main.chunk_by_tokens('A long RAG document to split into overlapping windows.', 256, 32);\"}]",
+        "vgi.executable_examples": "[\n  {\n    \"description\": \"Count the GPT-4/3.5 (cl100k_base) tokens in a sentence.\",\n    \"sql\": \"SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.') AS n\"\n  },\n  {\n    \"description\": \"Count tokens with a specific model's encoding (gpt-4o uses o200k_base).\",\n    \"sql\": \"SELECT tiktoken.main.count_tokens('Summarize this prompt.', 'gpt-4o') AS n\"\n  },\n  {\n    \"description\": \"Get the BPE token ids for a string under the default encoding.\",\n    \"sql\": \"SELECT tiktoken.main.tokenize('tiktoken is great!') AS ids\"\n  },\n  {\n    \"description\": \"Map a model name to its tiktoken encoding name.\",\n    \"sql\": \"SELECT tiktoken.main.encoding_for_model('gpt-4o') AS encoding\"\n  },\n  {\n    \"description\": \"Truncate text to its first 5 tokens, decoded back to a string.\",\n    \"sql\": \"SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5) AS clipped\"\n  },\n  {\n    \"description\": \"Split a document into non-overlapping 8-token chunks for embedding.\",\n    \"sql\": \"SELECT tiktoken.main.chunk_by_tokens('A long document to split before embedding for retrieval augmented generation.', 8) AS chunks\"\n  },\n  {\n    \"description\": \"Split a document into 8-token windows that share 2 overlapping tokens (RAG).\",\n    \"sql\": \"SELECT tiktoken.main.chunk_by_tokens('A long document to split into overlapping windows for retrieval.', 8, 2) AS chunks\"\n  }\n]",
+        "vgi.keywords": "[\"chunk\",\"chunk by tokens\",\"overlapping chunks\",\"sliding window\",\"rag chunking\",\"token windows\",\"document chunks\",\"overlap\",\"cl100k_base\"]",
+        "vgi.title": "Chunk By Tokens With Overlap"
+      },
+      "VARCHAR[]",
+      [
+        "text",
+        "max_tokens"
+      ],
+      [
+        "VARCHAR",
+        "INTEGER"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22726,
+      [
+        "SELECT tiktoken.main.chunk_by_tokens('A long document to split before embedding.', 256);"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "tokens",
+      "22592",
+      "main",
+      "chunk_by_tokens",
+      null,
+      "scalar",
+      "Split text into chunks of at most max_tokens tokens (cl100k_base) with `overlap` tokens shared between consecutive chunks (RAG windows), as VARCHAR[]. overlap is clamped to max_tokens-1. NULL -> NULL",
+      null,
+      {
+        "vgi.category": "shape",
+        "vgi.doc_llm": "Split text into chunks of at most max_tokens tokens (under cl100k_base) with `overlap` tokens shared between consecutive chunks (sliding RAG windows), returned as a `VARCHAR[]`. overlap is clamped to max_tokens-1 so the window always advances. NULL -> NULL. Use to preserve context across chunk boundaries.",
+        "vgi.doc_md": "Split text into overlapping token-bounded chunks as `VARCHAR[]`. `chunk_by_tokens(text, 256, 32)`.",
+        "vgi.example_queries": "[{\"description\":\"Split a document into non-overlapping windows of at most 256 tokens (cl100k_base) for embedding.\",\"sql\":\"SELECT tiktoken.main.chunk_by_tokens('A long document to split before embedding.', 256);\"},{\"description\":\"Split a document into 256-token windows that share 32 overlapping tokens, preserving context across chunks for RAG.\",\"sql\":\"SELECT tiktoken.main.chunk_by_tokens('A long RAG document to split into overlapping windows.', 256, 32);\"}]",
+        "vgi.executable_examples": "[\n  {\n    \"description\": \"Count the GPT-4/3.5 (cl100k_base) tokens in a sentence.\",\n    \"sql\": \"SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.') AS n\"\n  },\n  {\n    \"description\": \"Count tokens with a specific model's encoding (gpt-4o uses o200k_base).\",\n    \"sql\": \"SELECT tiktoken.main.count_tokens('Summarize this prompt.', 'gpt-4o') AS n\"\n  },\n  {\n    \"description\": \"Get the BPE token ids for a string under the default encoding.\",\n    \"sql\": \"SELECT tiktoken.main.tokenize('tiktoken is great!') AS ids\"\n  },\n  {\n    \"description\": \"Map a model name to its tiktoken encoding name.\",\n    \"sql\": \"SELECT tiktoken.main.encoding_for_model('gpt-4o') AS encoding\"\n  },\n  {\n    \"description\": \"Truncate text to its first 5 tokens, decoded back to a string.\",\n    \"sql\": \"SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5) AS clipped\"\n  },\n  {\n    \"description\": \"Split a document into non-overlapping 8-token chunks for embedding.\",\n    \"sql\": \"SELECT tiktoken.main.chunk_by_tokens('A long document to split before embedding for retrieval augmented generation.', 8) AS chunks\"\n  },\n  {\n    \"description\": \"Split a document into 8-token windows that share 2 overlapping tokens (RAG).\",\n    \"sql\": \"SELECT tiktoken.main.chunk_by_tokens('A long document to split into overlapping windows for retrieval.', 8, 2) AS chunks\"\n  }\n]",
+        "vgi.keywords": "[\"chunk\",\"chunk by tokens\",\"overlapping chunks\",\"sliding window\",\"rag chunking\",\"token windows\",\"document chunks\",\"overlap\",\"cl100k_base\"]",
+        "vgi.title": "Chunk By Tokens With Overlap"
+      },
+      "VARCHAR[]",
+      [
+        "text",
+        "max_tokens",
+        "overlap"
+      ],
+      [
+        "VARCHAR",
+        "INTEGER",
+        "INTEGER"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22726,
+      [
+        "SELECT tiktoken.main.chunk_by_tokens('A long RAG document to split into overlapping windows.', 256, 32);"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "tokens",
+      "22592",
+      "main",
+      "count_tokens",
+      null,
+      "scalar",
+      "Count LLM tokens in text under the default encoding (cl100k_base, the GPT-4/3.5 tokenizer). Empty text -> 0",
+      null,
+      {
+        "vgi.category": "count",
+        "vgi.doc_llm": "Count the exact number of LLM tokens in text using the encoding for the given model name (e.g. 'gpt-4o'). Exact for OpenAI BPE families. Unknown model -> NULL; empty text -> 0. Use to budget a specific model's context window.",
+        "vgi.doc_md": "Count LLM tokens in text using a model's encoding. `count_tokens('hi', 'gpt-4o')` counts under o200k_base.",
+        "vgi.example_queries": "[{\"description\":\"Count the GPT-4/3.5 (cl100k_base) tokens in a sentence.\",\"sql\":\"SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.');\"},{\"description\":\"Count tokens with the encoding for a specific model (gpt-4o uses o200k_base) to budget a context window.\",\"sql\":\"SELECT tiktoken.main.count_tokens('Summarize this prompt for GPT-4o.', 'gpt-4o');\"}]",
+        "vgi.keywords": "[\"count tokens\",\"token count for model\",\"gpt-4o tokens\",\"model token count\",\"context window\",\"prompt budget\",\"o200k_base\",\"llm tokens\"]",
+        "vgi.title": "Count Tokens For Model"
+      },
+      "INTEGER",
+      [
+        "text"
+      ],
+      [
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22727,
+      [
+        "SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.');"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "tokens",
+      "22592",
+      "main",
+      "count_tokens",
+      null,
+      "scalar",
+      "Count LLM tokens in text using the encoding for the given model name (e.g. 'gpt-4o'). Exact for OpenAI BPE families, a close proxy for others. Unknown model -> NULL; empty text -> 0",
+      null,
+      {
+        "vgi.category": "count",
+        "vgi.doc_llm": "Count the exact number of LLM tokens in text using the encoding for the given model name (e.g. 'gpt-4o'). Exact for OpenAI BPE families. Unknown model -> NULL; empty text -> 0. Use to budget a specific model's context window.",
+        "vgi.doc_md": "Count LLM tokens in text using a model's encoding. `count_tokens('hi', 'gpt-4o')` counts under o200k_base.",
+        "vgi.example_queries": "[{\"description\":\"Count the GPT-4/3.5 (cl100k_base) tokens in a sentence.\",\"sql\":\"SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.');\"},{\"description\":\"Count tokens with the encoding for a specific model (gpt-4o uses o200k_base) to budget a context window.\",\"sql\":\"SELECT tiktoken.main.count_tokens('Summarize this prompt for GPT-4o.', 'gpt-4o');\"}]",
+        "vgi.keywords": "[\"count tokens\",\"token count for model\",\"gpt-4o tokens\",\"model token count\",\"context window\",\"prompt budget\",\"o200k_base\",\"llm tokens\"]",
+        "vgi.title": "Count Tokens For Model"
+      },
+      "INTEGER",
+      [
+        "text",
+        "model"
+      ],
+      [
+        "VARCHAR",
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22727,
+      [
+        "SELECT tiktoken.main.count_tokens('Summarize this prompt for GPT-4o.', 'gpt-4o');"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "tokens",
+      "22592",
+      "main",
+      "encoding_for_model",
+      null,
+      "scalar",
+      "Map an LLM model name to its tiktoken encoding name (e.g. 'gpt-4o' -> 'o200k_base'); NULL if the model is unknown",
+      null,
+      {
+        "vgi.category": "reference",
+        "vgi.doc_llm": "Map an LLM model name (e.g. 'gpt-4o', 'gpt-4', 'gpt-3.5-turbo') to the name of the tiktoken BPE encoding it uses (e.g. 'o200k_base', 'cl100k_base'). Returns NULL for an unknown model. Use to pick the right encoding before counting or tokenizing.",
+        "vgi.doc_md": "Map a model name to its tiktoken encoding name; NULL if unknown. `encoding_for_model('gpt-4o')` -> `o200k_base`.",
+        "vgi.example_queries": "[{\"description\":\"Look up the tiktoken encoding a model uses (gpt-4o -> 'o200k_base').\",\"sql\":\"SELECT tiktoken.main.encoding_for_model('gpt-4o');\"}]",
+        "vgi.keywords": "[\"encoding\",\"encoding for model\",\"tiktoken encoding\",\"model to encoding\",\"cl100k_base\",\"o200k_base\",\"p50k_base\",\"bpe\",\"tokenizer name\"]",
+        "vgi.title": "Encoding For Model Name"
+      },
+      "VARCHAR",
+      [
+        "model"
+      ],
+      [
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22728,
+      [
+        "SELECT tiktoken.main.encoding_for_model('gpt-4o');"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "tokens",
+      "22592",
+      "main",
+      "tokenize",
+      null,
+      "scalar",
+      "Tokenize text to BPE token ids under the default encoding (cl100k_base) as INTEGER[]. Empty -> []; NULL -> NULL",
+      null,
+      {
+        "vgi.category": "tokenize",
+        "vgi.doc_llm": "Tokenize text into its BPE token ids using the encoding for the given model name (e.g. 'gpt-4o') and return them as an `INTEGER[]`. Unknown model -> NULL; empty text -> []. Use to inspect how a specific model splits a string into tokens.",
+        "vgi.doc_md": "Tokenize text to BPE token ids using a model's encoding as `INTEGER[]`. `tokenize('hi', 'gpt-4o')` uses o200k_base.",
+        "vgi.example_queries": "[{\"description\":\"Get the cl100k_base BPE token ids for a string as an INTEGER[].\",\"sql\":\"SELECT tiktoken.main.tokenize('tiktoken is great!');\"},{\"description\":\"Tokenize text using a specific model's encoding (gpt-4o uses o200k_base).\",\"sql\":\"SELECT tiktoken.main.tokenize('hello world', 'gpt-4o');\"}]",
+        "vgi.keywords": "[\"tokenize\",\"token ids for model\",\"bpe ids\",\"encode text\",\"gpt-4o tokens\",\"tokens array\",\"o200k_base\",\"llm tokens\"]",
+        "vgi.title": "Tokenize To Ids For Model"
+      },
+      "INTEGER[]",
+      [
+        "text"
+      ],
+      [
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22729,
+      [
+        "SELECT tiktoken.main.tokenize('tiktoken is great!');"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "tokens",
+      "22592",
+      "main",
+      "tokenize",
+      null,
+      "scalar",
+      "Tokenize text to BPE token ids using the encoding for the given model name (e.g. 'gpt-4o') as INTEGER[]. Unknown model -> NULL; empty -> []",
+      null,
+      {
+        "vgi.category": "tokenize",
+        "vgi.doc_llm": "Tokenize text into its BPE token ids using the encoding for the given model name (e.g. 'gpt-4o') and return them as an `INTEGER[]`. Unknown model -> NULL; empty text -> []. Use to inspect how a specific model splits a string into tokens.",
+        "vgi.doc_md": "Tokenize text to BPE token ids using a model's encoding as `INTEGER[]`. `tokenize('hi', 'gpt-4o')` uses o200k_base.",
+        "vgi.example_queries": "[{\"description\":\"Get the cl100k_base BPE token ids for a string as an INTEGER[].\",\"sql\":\"SELECT tiktoken.main.tokenize('tiktoken is great!');\"},{\"description\":\"Tokenize text using a specific model's encoding (gpt-4o uses o200k_base).\",\"sql\":\"SELECT tiktoken.main.tokenize('hello world', 'gpt-4o');\"}]",
+        "vgi.keywords": "[\"tokenize\",\"token ids for model\",\"bpe ids\",\"encode text\",\"gpt-4o tokens\",\"tokens array\",\"o200k_base\",\"llm tokens\"]",
+        "vgi.title": "Tokenize To Ids For Model"
+      },
+      "INTEGER[]",
+      [
+        "text",
+        "model"
+      ],
+      [
+        "VARCHAR",
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22729,
+      [
+        "SELECT tiktoken.main.tokenize('hello world', 'gpt-4o');"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "tokens",
+      "22592",
+      "main",
+      "truncate_to_tokens",
+      null,
+      "scalar",
+      "Keep the first n tokens of text (default cl100k_base) and decode them back to VARCHAR. n <= 0 -> ''",
+      null,
+      {
+        "vgi.category": "shape",
+        "vgi.doc_llm": "Keep only the first n tokens of text using the encoding for the given model name (e.g. 'gpt-4o') and decode them back to a `VARCHAR`. Unknown model -> NULL; n <= 0 -> ''. Use to clip text to a specific model's token budget.",
+        "vgi.doc_md": "Truncate text to its first n tokens using a model's encoding, decoded back to text. `truncate_to_tokens(text, 5, 'gpt-4o')`.",
+        "vgi.example_queries": "[{\"description\":\"Keep only the first 5 cl100k_base tokens of the text, decoded back to a string.\",\"sql\":\"SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5);\"},{\"description\":\"Truncate text to a token budget using a specific model's encoding (gpt-4o uses o200k_base).\",\"sql\":\"SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5, 'gpt-4o');\"}]",
+        "vgi.keywords": "[\"truncate\",\"truncate to tokens for model\",\"clip tokens\",\"token budget\",\"gpt-4o\",\"limit tokens\",\"context window\",\"o200k_base\"]",
+        "vgi.title": "Truncate To Tokens For Model"
+      },
+      "VARCHAR",
+      [
+        "text",
+        "n"
+      ],
+      [
+        "VARCHAR",
+        "INTEGER"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22730,
+      [
+        "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5);"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "tokens",
+      "22592",
+      "main",
+      "truncate_to_tokens",
+      null,
+      "scalar",
+      "Keep the first n tokens of text using the encoding for the given model (e.g. 'gpt-4o') and decode them back to VARCHAR. Unknown model -> NULL; n <= 0 -> ''",
+      null,
+      {
+        "vgi.category": "shape",
+        "vgi.doc_llm": "Keep only the first n tokens of text using the encoding for the given model name (e.g. 'gpt-4o') and decode them back to a `VARCHAR`. Unknown model -> NULL; n <= 0 -> ''. Use to clip text to a specific model's token budget.",
+        "vgi.doc_md": "Truncate text to its first n tokens using a model's encoding, decoded back to text. `truncate_to_tokens(text, 5, 'gpt-4o')`.",
+        "vgi.example_queries": "[{\"description\":\"Keep only the first 5 cl100k_base tokens of the text, decoded back to a string.\",\"sql\":\"SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5);\"},{\"description\":\"Truncate text to a token budget using a specific model's encoding (gpt-4o uses o200k_base).\",\"sql\":\"SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5, 'gpt-4o');\"}]",
+        "vgi.keywords": "[\"truncate\",\"truncate to tokens for model\",\"clip tokens\",\"token budget\",\"gpt-4o\",\"limit tokens\",\"context window\",\"o200k_base\"]",
+        "vgi.title": "Truncate To Tokens For Model"
+      },
+      "VARCHAR",
+      [
+        "text",
+        "n",
+        "model"
+      ],
+      [
+        "VARCHAR",
+        "INTEGER",
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22730,
+      [
+        "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5, 'gpt-4o');"
+      ],
+      "CONSISTENT",
+      []
+    ]
+  ]
+}

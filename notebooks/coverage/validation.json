@@ -1,0 +1,405 @@
+{
+  "schema_version": 1,
+  "status": "met",
+  "meets_target": true,
+  "catalogs": {
+    "released": {
+      "catalog_status": "verified",
+      "revision": "v0.4.1",
+      "catalog_sha256": "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520",
+      "collection_reconciled": true,
+      "denominator": 5,
+      "observed_objects": 5,
+      "required": 5,
+      "verified_count": 5,
+      "candidate_count": 0,
+      "fraction": 1.0,
+      "meets_target": true,
+      "exact_runtime_count": 5,
+      "runtime_revisions": [
+        "v0.4.1"
+      ],
+      "covered": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "chunk_by_tokens"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "count_tokens"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "encoding_for_model"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "tokenize"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "truncate_to_tokens"
+        }
+      ],
+      "uncovered": [],
+      "objects": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "chunk_by_tokens",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "chunk_by_tokens(VARCHAR, INTEGER) -> VARCHAR[]",
+            "chunk_by_tokens(VARCHAR, INTEGER, INTEGER) -> VARCHAR[]"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "count_tokens",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "count_tokens(VARCHAR) -> INTEGER",
+            "count_tokens(VARCHAR, VARCHAR) -> INTEGER"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "encoding_for_model",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "encoding_for_model(VARCHAR) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "tokenize",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "tokenize(VARCHAR) -> INTEGER[]",
+            "tokenize(VARCHAR, VARCHAR) -> INTEGER[]"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "truncate_to_tokens",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "truncate_to_tokens(VARCHAR, INTEGER) -> VARCHAR",
+            "truncate_to_tokens(VARCHAR, INTEGER, VARCHAR) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        }
+      ],
+      "issues": []
+    },
+    "current": {
+      "catalog_status": "verified",
+      "revision": "fe84c9fe390dd08ee78d578db1f2506492573d7d",
+      "catalog_sha256": "229a08027e58801914b390b86aff90e20ae7c1043f2da83ff5e49db8c7604480",
+      "collection_reconciled": false,
+      "denominator": 5,
+      "observed_objects": 5,
+      "required": 5,
+      "verified_count": 5,
+      "candidate_count": 0,
+      "fraction": 1.0,
+      "meets_target": true,
+      "exact_runtime_count": 0,
+      "runtime_revisions": [
+        "v0.4.1"
+      ],
+      "covered": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "chunk_by_tokens"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "count_tokens"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "encoding_for_model"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "tokenize"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "truncate_to_tokens"
+        }
+      ],
+      "uncovered": [],
+      "objects": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "chunk_by_tokens",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "chunk_by_tokens(VARCHAR, INTEGER) -> VARCHAR[]",
+            "chunk_by_tokens(VARCHAR, INTEGER, INTEGER) -> VARCHAR[]"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "count_tokens",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "count_tokens(VARCHAR) -> INTEGER",
+            "count_tokens(VARCHAR, VARCHAR) -> INTEGER"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "encoding_for_model",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "encoding_for_model(VARCHAR) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "tokenize",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "tokenize(VARCHAR) -> INTEGER[]",
+            "tokenize(VARCHAR, VARCHAR) -> INTEGER[]"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "truncate_to_tokens",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "truncate_to_tokens(VARCHAR, INTEGER) -> VARCHAR",
+            "truncate_to_tokens(VARCHAR, INTEGER, VARCHAR) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        }
+      ],
+      "issues": []
+    }
+  },
+  "interface_drift": {
+    "known": true,
+    "current_only": [],
+    "released_only": [],
+    "changed": []
+  },
+  "notebooks": {
+    "01_characters_bytes_and_tokens.ipynb": {
+      "verified": true,
+      "issues": []
+    },
+    "02_overlap_repeats_tokens_and_boundaries_matter.ipynb": {
+      "verified": true,
+      "issues": []
+    }
+  },
+  "examples": [
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "count_tokens"
+      },
+      "notebook": "01_characters_bytes_and_tokens.ipynb",
+      "runtime_revision": "v0.4.1",
+      "runtime_catalog_sha256": "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "tokenize"
+      },
+      "notebook": "01_characters_bytes_and_tokens.ipynb",
+      "runtime_revision": "v0.4.1",
+      "runtime_catalog_sha256": "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "encoding_for_model"
+      },
+      "notebook": "01_characters_bytes_and_tokens.ipynb",
+      "runtime_revision": "v0.4.1",
+      "runtime_catalog_sha256": "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "truncate_to_tokens"
+      },
+      "notebook": "01_characters_bytes_and_tokens.ipynb",
+      "runtime_revision": "v0.4.1",
+      "runtime_catalog_sha256": "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "chunk_by_tokens"
+      },
+      "notebook": "02_overlap_repeats_tokens_and_boundaries_matter.ipynb",
+      "runtime_revision": "v0.4.1",
+      "runtime_catalog_sha256": "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520"
+    }
+  ],
+  "issues": []
+}

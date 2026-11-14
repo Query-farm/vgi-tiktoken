@@ -35,9 +35,9 @@ ORDER BY c.chunk_no;
 
 ## Executable notebooks
 
-[Characters, bytes and tokens](notebooks/README.md) uses visible Haybarn SQL,
-released VGI functions and two charts to compare text encodings and inspect
-Unicode truncation boundaries. Includes a locked environment and saved outputs.
+[Two SQL narratives](notebooks/README.md) compare text encodings, inspect Unicode
+boundaries and reconcile overlapping token windows. Both include saved SVG charts,
+a Colab link and a visible connection to the released native worker.
 
 ## Quick start
 

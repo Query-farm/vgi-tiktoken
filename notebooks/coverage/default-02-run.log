@@ -1,0 +1,3 @@
+Running 02_overlap_repeats_tokens_and_boundaries_matter.ipynb ...
+[IPKernelApp] WARNING | Kernel is running over TCP without encryption. All communication (including code and outputs) is sent in plain text and is susceptible to eavesdropping. Use IPC transport or launch with kernel manager-provisioned CurveZMQ keys to enable transport encryption.
+OK: 12 code cells, 1 charts, 1.6s

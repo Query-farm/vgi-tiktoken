@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "repository": "Query-farm/vgi-tiktoken",
+  "captured_at": "2026-11-14T18:01:54.724831+00:00",
+  "default_schema": "main",
+  "scope": "all_public_functions_and_tables",
+  "complete": true,
+  "objects": [
+    {
+      "schema": "main",
+      "name": "chunk_by_tokens",
+      "kind": "function",
+      "signatures": [
+        "chunk_by_tokens(VARCHAR, INTEGER) -> VARCHAR[]",
+        "chunk_by_tokens(VARCHAR, INTEGER, INTEGER) -> VARCHAR[]"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "count_tokens",
+      "kind": "function",
+      "signatures": [
+        "count_tokens(VARCHAR) -> INTEGER",
+        "count_tokens(VARCHAR, VARCHAR) -> INTEGER"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "encoding_for_model",
+      "kind": "function",
+      "signatures": [
+        "encoding_for_model(VARCHAR) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "tokenize",
+      "kind": "function",
+      "signatures": [
+        "tokenize(VARCHAR) -> INTEGER[]",
+        "tokenize(VARCHAR, VARCHAR) -> INTEGER[]"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "truncate_to_tokens",
+      "kind": "function",
+      "signatures": [
+        "truncate_to_tokens(VARCHAR, INTEGER) -> VARCHAR",
+        "truncate_to_tokens(VARCHAR, INTEGER, VARCHAR) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    }
+  ],
+  "revision": "fe84c9fe390dd08ee78d578db1f2506492573d7d",
+  "evidence": [
+    {
+      "path": "coverage/current-registration.rs",
+      "sha256": "7530a9777eb9456833abd0a04b55258cef999d03a7f0f514939a6538283135bc",
+      "description": "Current registration and reviewed full source comparison against released runtime"
+    },
+    {
+      "path": "coverage/current-scalars.rs",
+      "sha256": "02932ff99941529eb32e49a3618c3fa667e49f807613c27bf307579c3660c2ed",
+      "description": "Current registration and reviewed full source comparison against released runtime"
+    },
+    {
+      "path": "coverage/release-to-current.diff",
+      "sha256": "dd7083eb73b9df5b47d0685e4e5f1bd795f9474e510f6f86e8bcf0d6eef3c2d4",
+      "description": "Current registration and reviewed full source comparison against released runtime"
+    },
+    {
+      "path": "coverage/source-review.json",
+      "sha256": "8101b1e16c034c19bc27a3c20df14735817d1838fbad292f86417e2c6469d229",
+      "description": "Current registration and reviewed full source comparison against released runtime"
+    }
+  ]
+}

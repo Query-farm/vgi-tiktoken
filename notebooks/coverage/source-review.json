@@ -1,0 +1,22 @@
+{
+  "release": "v0.4.1",
+  "release_commit": "ca6cab244056b5ba8d63e08a080cc1f8532a25ff",
+  "current_commit": "fe84c9fe390dd08ee78d578db1f2506492573d7d",
+  "unchanged_paths": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "crates/tiktoken-worker/src/tiktoken.rs",
+    "crates/tiktoken-worker/src/arrow_io.rs",
+    "crates/tiktoken-worker/src/scalar/tokenize.rs",
+    "crates/tiktoken-worker/src/scalar/encoding.rs",
+    "crates/tiktoken-worker/src/scalar/mod.rs"
+  ],
+  "changed_paths": [
+    "crates/tiktoken-worker/src/lib.rs",
+    "crates/tiktoken-worker/src/meta.rs",
+    "crates/tiktoken-worker/src/scalar/chunk.rs",
+    "crates/tiktoken-worker/src/scalar/count.rs",
+    "crates/tiktoken-worker/src/scalar/truncate.rs"
+  ],
+  "review": "All changes in the retained full diff add catalog prompts and executable/example metadata. Registration, names, argument types, return types, Arrow adapters, tokenizer engine, bundled vocabulary dependency and dependency lock remain equivalent. Five public functions, nine overloads, zero tables and views. Current coverage is reviewed interface compatibility; notebooks execute v0.4.1, not current main."
+}
