@@ -37,14 +37,11 @@ SELECT p.id, tiktoken.main.count_tokens(p.prompt) AS original_tokens, tiktoken.m
 1	3	Short question?	3
 2	20	Please summarize the following quarterly report in three bullet points	10
 
-# Grader chunk_token_counts.
+# Grader overlap_embedding_cost: 6-token windows with 2 tokens of overlap.
 query II
-SELECT c.chunk_no, tiktoken.main.count_tokens(c.chunk) AS token_count FROM unnest(tiktoken.main.chunk_by_tokens('The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.', 6)) WITH ORDINALITY AS c(chunk, chunk_no) ORDER BY c.chunk_no
+SELECT count(*)::BIGINT AS chunk_count, sum(tiktoken.main.count_tokens(c.chunk))::BIGINT AS total_tokens FROM unnest(tiktoken.main.chunk_by_tokens('The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.', 6, 2)) AS c(chunk)
 ----
-1	6
-2	6
-3	6
-4	2
+5	28
 
 # Grader cheapest_model.
 query TI

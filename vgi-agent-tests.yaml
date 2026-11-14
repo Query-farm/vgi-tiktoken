@@ -20,8 +20,9 @@ tasks:
     reference_sql: "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5) AS clipped"
   - name: "chunk_count"
     reference_sql: "SELECT len(tiktoken.main.chunk_by_tokens('The quick brown fox jumps over the lazy dog.', 5)) AS chunk_count"
-  # Composed tasks: each needs two of the worker's functions in one query.
-  - name: "chunk_token_counts"
-    reference_sql: "SELECT c.chunk_no, tiktoken.main.count_tokens(c.chunk) AS token_count FROM unnest(tiktoken.main.chunk_by_tokens('The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.', 6)) WITH ORDINALITY AS c(chunk, chunk_no) ORDER BY c.chunk_no"
+  # overlap_embedding_cost composes chunk_by_tokens with count_tokens; a
+  # non-overlapping split (4 windows, 20 tokens) fails the compare.
+  - name: "overlap_embedding_cost"
+    reference_sql: "SELECT count(*)::BIGINT AS chunk_count, sum(tiktoken.main.count_tokens(c.chunk))::BIGINT AS total_tokens FROM unnest(tiktoken.main.chunk_by_tokens('The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.', 6, 2)) AS c(chunk)"
   - name: "cheapest_model"
     reference_sql: "SELECT m.model, tiktoken.main.count_tokens('Привет, мир! Как дела сегодня?', m.model) AS token_count FROM (VALUES ('gpt-4o'), ('gpt-4'), ('text-davinci-003')) AS m(model) ORDER BY token_count LIMIT 1"
