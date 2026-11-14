@@ -41,6 +41,7 @@ fn count_examples_json() -> String {
             "Count tokens with the encoding for a specific model (gpt-4o uses o200k_base) to budget a context window.",
             "SELECT tiktoken.main.count_tokens('Summarize this prompt for GPT-4o.', 'gpt-4o');",
         ),
+        crate::meta::COMPOSED_MODEL_COST_COMPARISON,
     ])
 }
 

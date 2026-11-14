@@ -25,37 +25,40 @@ use crate::tiktoken::{self, Encoding};
 /// span the worker's surface (count/tokenize/encoding/truncate/chunk) and all
 /// use only the bundled BPE encodings, so they execute with no network access.
 /// We omit `expected_result` deliberately — the linter only needs each query to
-/// execute cleanly.
-const EXECUTABLE_EXAMPLES: &str = r#"[
-  {
-    "description": "Count the GPT-4/3.5 (cl100k_base) tokens in a sentence.",
-    "sql": "SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.') AS n"
-  },
-  {
-    "description": "Count tokens with a specific model's encoding (gpt-4o uses o200k_base).",
-    "sql": "SELECT tiktoken.main.count_tokens('Summarize this prompt.', 'gpt-4o') AS n"
-  },
-  {
-    "description": "Get the BPE token ids for a string under the default encoding.",
-    "sql": "SELECT tiktoken.main.tokenize('tiktoken is great!') AS ids"
-  },
-  {
-    "description": "Map a model name to its tiktoken encoding name.",
-    "sql": "SELECT tiktoken.main.encoding_for_model('gpt-4o') AS encoding"
-  },
-  {
-    "description": "Truncate text to its first 5 tokens, decoded back to a string.",
-    "sql": "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5) AS clipped"
-  },
-  {
-    "description": "Split a document into non-overlapping 8-token chunks for embedding.",
-    "sql": "SELECT tiktoken.main.chunk_by_tokens('A long document to split before embedding for retrieval augmented generation.', 8) AS chunks"
-  },
-  {
-    "description": "Split a document into 8-token windows that share 2 overlapping tokens (RAG).",
-    "sql": "SELECT tiktoken.main.chunk_by_tokens('A long document to split into overlapping windows for retrieval.', 8, 2) AS chunks"
-  }
-]"#;
+/// execute cleanly. The last entry composes `chunk_by_tokens` with `count_tokens`.
+fn executable_examples_json() -> String {
+    crate::meta::example_queries_json(&[
+        (
+            "Count the GPT-4/3.5 (cl100k_base) tokens in a sentence.",
+            "SELECT tiktoken.main.count_tokens('The quick brown fox jumps over the lazy dog.') AS n",
+        ),
+        (
+            "Count tokens with a specific model's encoding (gpt-4o uses o200k_base).",
+            "SELECT tiktoken.main.count_tokens('Summarize this prompt.', 'gpt-4o') AS n",
+        ),
+        (
+            "Get the BPE token ids for a string under the default encoding.",
+            "SELECT tiktoken.main.tokenize('tiktoken is great!') AS ids",
+        ),
+        (
+            "Map a model name to its tiktoken encoding name.",
+            "SELECT tiktoken.main.encoding_for_model('gpt-4o') AS encoding",
+        ),
+        (
+            "Truncate text to its first 5 tokens, decoded back to a string.",
+            "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5) AS clipped",
+        ),
+        (
+            "Split a document into non-overlapping 8-token chunks for embedding.",
+            "SELECT tiktoken.main.chunk_by_tokens('A long document to split before embedding for retrieval augmented generation.', 8) AS chunks",
+        ),
+        (
+            "Split a document into 8-token windows that share 2 overlapping tokens (RAG).",
+            "SELECT tiktoken.main.chunk_by_tokens('A long document to split into overlapping windows for retrieval.', 8, 2) AS chunks",
+        ),
+        crate::meta::COMPOSED_CHUNK_TOKEN_COUNTS,
+    ])
+}
 
 /// The `vgi.example_queries` payload shared by both `chunk_by_tokens` arity
 /// overloads (see the note on `count_examples_json`): overloads collapse to one
@@ -71,6 +74,7 @@ fn chunk_examples_json() -> String {
             "Split a document into 256-token windows that share 32 overlapping tokens, preserving context across chunks for RAG.",
             "SELECT tiktoken.main.chunk_by_tokens('A long RAG document to split into overlapping windows.', 256, 32);",
         ),
+        crate::meta::COMPOSED_CHUNK_TOKEN_COUNTS,
     ])
 }
 
@@ -123,7 +127,7 @@ impl ScalarFunction for ChunkByTokens {
                     "shape",
                 );
                 tags.push(("vgi.example_queries".into(), chunk_examples_json()));
-                tags.push(("vgi.executable_examples".into(), EXECUTABLE_EXAMPLES.into()));
+                tags.push(("vgi.executable_examples".into(), executable_examples_json()));
                 tags
             },
             ..Default::default()

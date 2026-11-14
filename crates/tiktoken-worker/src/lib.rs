@@ -143,7 +143,9 @@ fn catalog_metadata(name: &str) -> CatalogModel {
   {"name": "encoding_for_model", "prompt": "Which tiktoken encoding does the model 'gpt-4o' use? Return the encoding name in a column named encoding."},
   {"name": "tokenize_ids", "prompt": "Return the raw cl100k_base BPE token ids for the text 'hello world' as an integer array in a column named token_ids."},
   {"name": "truncate_to_budget", "prompt": "Truncate the text 'The quick brown fox jumps over the lazy dog.' to its first 5 cl100k_base tokens and return the resulting string in a column named clipped."},
-  {"name": "chunk_count", "prompt": "Split the text 'The quick brown fox jumps over the lazy dog.' into chunks of at most 5 tokens (cl100k_base) and return how many chunks result, in a column named chunk_count."}
+  {"name": "chunk_count", "prompt": "Split the text 'The quick brown fox jumps over the lazy dog.' into chunks of at most 5 tokens (cl100k_base) and return how many chunks result, in a column named chunk_count."},
+  {"name": "chunk_token_counts", "prompt": "Split the text 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.' into non-overlapping chunks of at most 6 cl100k_base tokens. Return one row per chunk with its 1-based position in a column named chunk_no and the chunk's cl100k_base token count in a column named token_count (both integers), ordered by chunk_no."},
+  {"name": "cheapest_model", "prompt": "Of the models 'gpt-4o', 'gpt-4' and 'text-davinci-003', which one encodes the text 'Привет, мир! Как дела сегодня?' in the fewest tokens? Return a single row with the model name in a column named model and its token count in a column named token_count."}
 ]"#
                 .to_string(),
             ),
@@ -251,6 +253,9 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                             "Split a document into non-overlapping 8-token chunks for embedding.",
                             "SELECT tiktoken.main.chunk_by_tokens('A long document to split before embedding.', 8);",
                         ),
+                        meta::COMPOSED_CHUNK_TOKEN_COUNTS,
+                        meta::COMPOSED_MODEL_COST_COMPARISON,
+                        meta::COMPOSED_PROMPT_BUDGET,
                     ]),
                 ),
             ],

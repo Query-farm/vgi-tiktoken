@@ -32,6 +32,7 @@ fn truncate_examples_json() -> String {
             "Truncate text to a token budget using a specific model's encoding (gpt-4o uses o200k_base).",
             "SELECT tiktoken.main.truncate_to_tokens('The quick brown fox jumps over the lazy dog.', 5, 'gpt-4o');",
         ),
+        crate::meta::COMPOSED_PROMPT_BUDGET,
     ])
 }
 

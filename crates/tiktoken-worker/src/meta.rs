@@ -99,3 +99,29 @@ pub fn object_tags(
         ("vgi.category".to_string(), category.to_string()),
     ]
 }
+
+// Composed examples: realistic queries that combine two or more of the worker's
+// functions. Each is defined once here and referenced from the schema-level
+// `vgi.example_queries` list (lib.rs) and from the example list of the function
+// that drives the query, so the copies can never drift apart.
+
+/// `chunk_by_tokens` feeding `count_tokens`: window a document, then verify each
+/// chunk's token count (driven by `chunk_by_tokens`).
+pub const COMPOSED_CHUNK_TOKEN_COUNTS: (&str, &str) = (
+    "Split a document into 8-token chunks (cl100k_base), number them in order with WITH ORDINALITY, and count the tokens in each chunk to confirm it fits the budget (4 chunks of 8, 8, 8 and 5 tokens).",
+    "SELECT c.chunk_no, c.chunk, tiktoken.main.count_tokens(c.chunk) AS tokens FROM unnest(tiktoken.main.chunk_by_tokens('Retrieval augmented generation splits long documents into token-bounded chunks, embeds each chunk, and retrieves the most relevant ones at query time.', 8)) WITH ORDINALITY AS c(chunk, chunk_no) ORDER BY c.chunk_no;",
+);
+
+/// `encoding_for_model` beside `count_tokens(text, model)`: compare one text's
+/// token cost across models (driven by `count_tokens`).
+pub const COMPOSED_MODEL_COST_COMPARISON: (&str, &str) = (
+    "Compare what one multilingual sentence costs under three models, showing each model's encoding: gpt-4o (o200k_base) needs 20 tokens versus 24 for gpt-4 (cl100k_base) and 30 for text-davinci-003 (p50k_base).",
+    "SELECT m.model, tiktoken.main.encoding_for_model(m.model) AS encoding, tiktoken.main.count_tokens('Tokenizers differ: GPT-4o packs multilingual text such as こんにちは世界 into fewer tokens.', m.model) AS tokens FROM (VALUES ('gpt-4o'), ('gpt-4'), ('text-davinci-003')) AS m(model) ORDER BY tokens, m.model;",
+);
+
+/// `truncate_to_tokens` checked with `count_tokens`: fit prompts to a budget and
+/// report before/after counts (driven by `truncate_to_tokens`).
+pub const COMPOSED_PROMPT_BUDGET: (&str, &str) = (
+    "Fit a table of prompts to a 10-token budget: report each prompt's original token count, the clipped text, and its token count after truncation (the 3-token prompt passes through unchanged; the 20-token one is cut to 10).",
+    "SELECT p.id, tiktoken.main.count_tokens(p.prompt) AS original_tokens, tiktoken.main.truncate_to_tokens(p.prompt, 10) AS clipped, tiktoken.main.count_tokens(tiktoken.main.truncate_to_tokens(p.prompt, 10)) AS clipped_tokens FROM (VALUES (1, 'Short question?'), (2, 'Please summarize the following quarterly report in three bullet points, focusing on revenue growth, margins and guidance.')) AS p(id, prompt) ORDER BY p.id;",
+);

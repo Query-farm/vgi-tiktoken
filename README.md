@@ -23,6 +23,11 @@ SELECT tokenize('tiktoken is great!');                    -- [83, 1609, 5963, 37
 SELECT truncate_to_tokens('a long passage …', 16);        -- first 16 tokens, decoded
 SELECT chunk_by_tokens('… RAG document …', 256, 32);      -- VARCHAR[] windows w/ overlap
 SELECT encoding_for_model('gpt-4o');                      -- 'o200k_base'
+
+-- Compose them: chunk a document, then count the tokens in each chunk.
+SELECT c.chunk_no, count_tokens(c.chunk) AS tokens
+FROM unnest(chunk_by_tokens('… RAG document …', 256)) WITH ORDINALITY AS c(chunk, chunk_no)
+ORDER BY c.chunk_no;
 ```
 
 > The worker's own version is exposed as the catalog's `implementation_version`

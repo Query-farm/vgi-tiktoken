@@ -1,0 +1,70 @@
+# name: test/sql/composed.test
+# group: [vgi_tiktoken]
+#
+# The composed examples (meta.rs COMPOSED_*) and the composed agent-test graders
+# (vgi-agent-tests.yaml), run verbatim so their published descriptions stay
+# true to the rows they return.
+
+require-env VGI_TIKTOKEN_WORKER
+
+statement ok
+LOAD vgi;
+
+statement ok
+ATTACH 'tiktoken' AS tiktoken (TYPE vgi, LOCATION '${VGI_TIKTOKEN_WORKER}');
+
+# COMPOSED_CHUNK_TOKEN_COUNTS: chunk_by_tokens -> count_tokens per chunk.
+query ITI
+SELECT c.chunk_no, c.chunk, tiktoken.main.count_tokens(c.chunk) AS tokens FROM unnest(tiktoken.main.chunk_by_tokens('Retrieval augmented generation splits long documents into token-bounded chunks, embeds each chunk, and retrieves the most relevant ones at query time.', 8)) WITH ORDINALITY AS c(chunk, chunk_no) ORDER BY c.chunk_no;
+----
+1	Retrieval augmented generation splits long documents	8
+2	 into token-bounded chunks, embeds	8
+3	 each chunk, and retrieves the most relevant	8
+4	 ones at query time.	5
+
+# COMPOSED_MODEL_COST_COMPARISON: encoding_for_model + count_tokens(text, model).
+query TTI
+SELECT m.model, tiktoken.main.encoding_for_model(m.model) AS encoding, tiktoken.main.count_tokens('Tokenizers differ: GPT-4o packs multilingual text such as こんにちは世界 into fewer tokens.', m.model) AS tokens FROM (VALUES ('gpt-4o'), ('gpt-4'), ('text-davinci-003')) AS m(model) ORDER BY tokens, m.model;
+----
+gpt-4o	o200k_base	20
+gpt-4	cl100k_base	24
+text-davinci-003	p50k_base	30
+
+# COMPOSED_PROMPT_BUDGET: truncate_to_tokens checked with count_tokens.
+query IITI
+SELECT p.id, tiktoken.main.count_tokens(p.prompt) AS original_tokens, tiktoken.main.truncate_to_tokens(p.prompt, 10) AS clipped, tiktoken.main.count_tokens(tiktoken.main.truncate_to_tokens(p.prompt, 10)) AS clipped_tokens FROM (VALUES (1, 'Short question?'), (2, 'Please summarize the following quarterly report in three bullet points, focusing on revenue growth, margins and guidance.')) AS p(id, prompt) ORDER BY p.id;
+----
+1	3	Short question?	3
+2	20	Please summarize the following quarterly report in three bullet points	10
+
+# Grader chunk_token_counts.
+query II
+SELECT c.chunk_no, tiktoken.main.count_tokens(c.chunk) AS token_count FROM unnest(tiktoken.main.chunk_by_tokens('The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.', 6)) WITH ORDINALITY AS c(chunk, chunk_no) ORDER BY c.chunk_no
+----
+1	6
+2	6
+3	6
+4	2
+
+# Grader cheapest_model.
+query TI
+SELECT m.model, tiktoken.main.count_tokens('Привет, мир! Как дела сегодня?', m.model) AS token_count FROM (VALUES ('gpt-4o'), ('gpt-4'), ('text-davinci-003')) AS m(model) ORDER BY token_count LIMIT 1
+----
+gpt-4o	9
+
+# README composed example (search_path form).
+statement ok
+SET search_path = 'tiktoken.main';
+
+query II
+SELECT c.chunk_no, count_tokens(c.chunk) AS tokens
+FROM unnest(chunk_by_tokens('Retrieval augmented generation splits long documents into token-bounded chunks.', 256)) WITH ORDINALITY AS c(chunk, chunk_no)
+ORDER BY c.chunk_no;
+----
+1	14
+
+statement ok
+USE memory;
+
+statement ok
+DETACH tiktoken;
