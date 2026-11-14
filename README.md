@@ -33,6 +33,12 @@ ORDER BY c.chunk_no;
 > The worker's own version is exposed as the catalog's `implementation_version`
 > (read it from `vgi_catalogs()`), not as a SQL function.
 
+## Executable notebooks
+
+[Characters, bytes and tokens](notebooks/README.md) uses visible Haybarn SQL,
+released VGI functions and two charts to compare text encodings and inspect
+Unicode truncation boundaries. Includes a locked environment and saved outputs.
+
 ## Quick start
 
 Every [GitHub release](https://github.com/Query-farm/vgi-tiktoken/releases) ships a prebuilt worker binary. The `vgi` extension downloads the one for your platform, checks its SHA-256 and caches it, so there is nothing to install besides DuckDB:
