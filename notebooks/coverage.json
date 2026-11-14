@@ -27,18 +27,18 @@
   "notebooks": [
     {
       "path": "01_characters_bytes_and_tokens.ipynb",
-      "sha256": "03ebcbdf95008398875edc3927eb58623b191ba4ec15b4db3576ceb0db558646",
+      "sha256": "cf818f99c39a91f5229bfe6d0b15060f982f6730dc4c751cb6186ad52d73ac35",
       "execution": {
         "path": "coverage/run-01.json",
-        "sha256": "8f0d927d8f8746c6398ee8c6741bf31863e542bc8c20070a7f6bb5458fa93754"
+        "sha256": "b980e9980f2ee584a6611c029e2478744fd28e2b84be81f3ad1f647766e0e6cc"
       }
     },
     {
       "path": "02_overlap_repeats_tokens_and_boundaries_matter.ipynb",
-      "sha256": "3f141cd322b1e4cfe1b92912432508fc80c975e27b14322ef608e41a03b3b14a",
+      "sha256": "e8febf520d5d0a49812427d444b300db1e2f6b56c451f1387cec3eca687ddd27",
       "execution": {
         "path": "coverage/run-02.json",
-        "sha256": "5d505bccc89dea03873237e6e0d8662516a5f3ec41f3ae1b0818df62742e323f"
+        "sha256": "78bd2a56e12ad1c7111497c447735f999a180665fea62f262d94fc5f914cd728"
       }
     }
   ],
@@ -73,7 +73,7 @@
         "status": "approved",
         "reviewer": "Codex /root",
         "reviewed_at": "2026-11-14T18:07:11.836701+00:00",
-        "notebook_sha256": "03ebcbdf95008398875edc3927eb58623b191ba4ec15b4db3576ceb0db558646",
+        "notebook_sha256": "cf818f99c39a91f5229bfe6d0b15060f982f6730dc4c751cb6186ad52d73ac35",
         "catalog_sha256": [
           "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520",
           "229a08027e58801914b390b86aff90e20ae7c1043f2da83ff5e49db8c7604480"
@@ -107,7 +107,7 @@
         "status": "approved",
         "reviewer": "Codex /root",
         "reviewed_at": "2026-11-14T18:07:11.836701+00:00",
-        "notebook_sha256": "03ebcbdf95008398875edc3927eb58623b191ba4ec15b4db3576ceb0db558646",
+        "notebook_sha256": "cf818f99c39a91f5229bfe6d0b15060f982f6730dc4c751cb6186ad52d73ac35",
         "catalog_sha256": [
           "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520",
           "229a08027e58801914b390b86aff90e20ae7c1043f2da83ff5e49db8c7604480"
@@ -141,7 +141,7 @@
         "status": "approved",
         "reviewer": "Codex /root",
         "reviewed_at": "2026-11-14T18:07:11.836701+00:00",
-        "notebook_sha256": "03ebcbdf95008398875edc3927eb58623b191ba4ec15b4db3576ceb0db558646",
+        "notebook_sha256": "cf818f99c39a91f5229bfe6d0b15060f982f6730dc4c751cb6186ad52d73ac35",
         "catalog_sha256": [
           "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520",
           "229a08027e58801914b390b86aff90e20ae7c1043f2da83ff5e49db8c7604480"
@@ -175,7 +175,7 @@
         "status": "approved",
         "reviewer": "Codex /root",
         "reviewed_at": "2026-11-14T18:07:11.836701+00:00",
-        "notebook_sha256": "03ebcbdf95008398875edc3927eb58623b191ba4ec15b4db3576ceb0db558646",
+        "notebook_sha256": "cf818f99c39a91f5229bfe6d0b15060f982f6730dc4c751cb6186ad52d73ac35",
         "catalog_sha256": [
           "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520",
           "229a08027e58801914b390b86aff90e20ae7c1043f2da83ff5e49db8c7604480"
@@ -222,7 +222,7 @@
         "status": "approved",
         "reviewer": "Codex /root",
         "reviewed_at": "2026-11-14T18:07:11.836701+00:00",
-        "notebook_sha256": "3f141cd322b1e4cfe1b92912432508fc80c975e27b14322ef608e41a03b3b14a",
+        "notebook_sha256": "e8febf520d5d0a49812427d444b300db1e2f6b56c451f1387cec3eca687ddd27",
         "catalog_sha256": [
           "bce564618b435e5d38695a039940fac14a821befccae089962d22c3018732520",
           "229a08027e58801914b390b86aff90e20ae7c1043f2da83ff5e49db8c7604480"
