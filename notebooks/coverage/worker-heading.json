@@ -1,0 +1,26 @@
+{
+  "repository": "Query-farm/vgi-tiktoken",
+  "title": "Tiktoken Tokenizer",
+  "subtitle": "Count, tokenize, truncate and chunk text using exact OpenAI BPE token counts.",
+  "evidence_sha256": "af051ba99f245ab7164989f38a87e23efb8585b35165639f2270f9ca35f0c976",
+  "provenance": "Actual catalog tags from the released runtime used by the notebook",
+  "worker_release": "v0.4.1",
+  "runtime_export": {
+    "attach": "ATTACH 'tokens' (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-tiktoken@v0.4.1');",
+    "query": "SELECT database_name, comment, map_extract_value(tags,'vgi.title') AS title, map_extract_value(tags,'vgi.subtitle') AS subtitle FROM duckdb_databases() WHERE map_extract_value(tags,'vgi.title') IS NOT NULL",
+    "columns": [
+      "database_name",
+      "comment",
+      "title",
+      "subtitle"
+    ],
+    "rows": [
+      [
+        "tokens",
+        "Exact LLM token counting and token-aware text chunking, powered by tiktoken-rs.",
+        "Tiktoken Tokenizer",
+        "Count, tokenize, truncate and chunk text using exact OpenAI BPE token counts."
+      ]
+    ]
+  }
+}
